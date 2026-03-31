@@ -235,9 +235,11 @@ svg.ring { transform: rotate(-90deg); }
   /* Cost Breakdown : sous-onglets empilés */
   .cb-grid { grid-template-columns: 1fr !important; }
 
-  /* Réseau institutionnel : SVG scrollable */
-  .carto-container { overflow-x: auto; }
-  .carto-container svg { min-width: 600px; }
+  /* Réseau institutionnel : carte en pleine largeur sur mobile */
+  #carto-layout { flex-direction: column !important; height: auto !important; }
+  #carto-map-panel { height: 60vw !important; min-height: 280px !important; overflow: hidden !important; }
+  #carto-map-panel svg { width: 100% !important; height: 100% !important; }
+  #carto-sidebar { width: 100% !important; border-left: none !important; border-top: 1px solid #1e3048; max-height: 350px; }
 
   /* Drive table */
   .drive-table { font-size: 11px; }
@@ -899,10 +901,10 @@ const TRACKING_DATA = {
       </div>
     </div>
 
-    <div style="display:flex;height:calc(100vh - 200px);">
+    <div id="carto-layout" style="display:flex;height:calc(100vh - 200px);">
       <!-- SVG Map -->
-      <div style="flex:1;position:relative;overflow:hidden;background:#0f1923;">
-        <svg id="map-embed" viewBox="0 0 900 620" style="width:100%;height:100%;">
+      <div id="carto-map-panel" style="flex:1;position:relative;overflow:hidden;background:#0f1923;">
+        <svg id="map-embed" viewBox="0 0 900 620" style="width:100%;height:100%;touch-action:pan-x pan-y;">
           <defs>
             <marker id="arrow-red2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e74c3c"/></marker>
             <marker id="arrow-orange2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e67e22"/></marker>
@@ -1033,7 +1035,7 @@ const TRACKING_DATA = {
       </div>
 
       <!-- Sidebar carte -->
-      <div style="width:300px;background:#131f2b;border-left:1px solid #1e3048;padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
+      <div id="carto-sidebar" style="width:300px;background:#131f2b;border-left:1px solid #1e3048;padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
         <div style="font-size:11px;font-weight:700;color:#7abadc;text-transform:uppercase;letter-spacing:0.06em;">Profils & Relations</div>
         <div style="background:#2a1a1a;border:1px solid #c0392b44;border-radius:8px;padding:12px;font-size:11.5px;color:#aaa;line-height:1.6;">
           <strong style="color:#e74c3c;">⚠ Point critique</strong><br>
