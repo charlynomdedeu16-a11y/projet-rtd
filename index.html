@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard RTD — La Lettre v3</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif; background: #111827; color: #e5e7eb; min-height: 100vh; font-size: 14px; }
+
+/* ── HEADER ── */
+.header { background: #1a2035; border-bottom: 1px solid #2d3748; padding: 16px 32px 0; }
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.header-brand { display: flex; align-items: center; gap: 14px; }
+.brand-dot { width: 36px; height: 36px; background: linear-gradient(135deg, #c9a84c, #8B4513); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.header-brand h1 { font-size: 17px; font-weight: 700; color: #f9fafb; letter-spacing: -0.3px; }
+.header-brand .sub { font-size: 11px; color: #6b7280; margin-top: 2px; }
+.header-meta { text-align: right; }
+.last-update { font-size: 11px; color: #4b5563; }
+.phase-tag { display: inline-block; background: #1e3a1a; color: #4ade80; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 0; padding: 0 32px; background: #161f30; border-bottom: 1px solid #2d3748; overflow-x: auto; }
+.tab { padding: 11px 16px; font-size: 12.5px; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; letter-spacing: 0.1px; white-space: nowrap; }
+.tab:hover { color: #d1d5db; }
+.tab.active { color: #c9a84c; border-bottom-color: #c9a84c; }
+.tab-badge { display: inline-block; background: #374151; color: #9ca3af; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; margin-left: 5px; vertical-align: middle; }
+.tab.active .tab-badge { background: #3d2e0a; color: #c9a84c; }
+
+/* ── LAYOUT ── */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.container { max-width: 1200px; margin: 0 auto; padding: 24px 32px; }
+
+/* ── KPI CARDS ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
+.kpi-card { background: #1f2937; border: 1px solid #2d3748; border-radius: 10px; padding: 16px; }
+.kpi-value { font-size: 26px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
+.kpi-value.gold { color: #c9a84c; }
+.kpi-value.green { color: #10b981; }
+.kpi-value.orange { color: #f59e0b; }
+.kpi-value.red { color: #ef4444; }
+.kpi-value.gray { color: #6b7280; }
+.kpi-value.blue { color: #3b82f6; }
+.kpi-label { font-size: 11px; color: #6b7280; font-weight: 500; line-height: 1.3; }
+.kpi-sub { font-size: 10px; color: #4b5563; margin-top: 4px; }
+
+/* ── SECTION ── */
+.section { margin-bottom: 26px; }
+.section-title { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #4b5563; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.section-title::after { content: ''; flex: 1; height: 1px; background: #1f2937; }
+
+/* ── FOCUS DU JOUR ── */
+.focus-block { background: linear-gradient(135deg, #2d1e0a 0%, #1a1509 100%); border: 1px solid #c9a84c30; border-radius: 12px; padding: 18px 22px; margin-bottom: 24px; }
+.focus-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.focus-icon { font-size: 16px; }
+.focus-title { font-size: 13px; font-weight: 700; color: #c9a84c; letter-spacing: 0.3px; text-transform: uppercase; }
+.focus-subtitle { font-size: 11px; color: #7a6030; margin-top: 1px; }
+.focus-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.focus-action { background: #111009; border: 1px solid #2d1e0a; border-radius: 8px; padding: 12px 14px; }
+.focus-action-num { font-size: 10px; font-weight: 700; color: #c9a84c; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+.focus-action-name { font-size: 12.5px; font-weight: 600; color: #e2e8f0; margin-bottom: 3px; line-height: 1.35; }
+.focus-action-meta { font-size: 11px; color: #6b7280; }
+.focus-action-tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; margin-top: 6px; }
+.tag-critique { background: #991b1b30; color: #f87171; }
+.tag-haute { background: #92400e30; color: #fbbf24; }
+.tag-important { background: #1e3a5f30; color: #60a5fa; }
+
+/* ── ALERTES ── */
+.alert-list { display: flex; flex-direction: column; gap: 10px; }
+.alert-card { border-radius: 8px; padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start; }
+.alert-card.critique { background: #1f0a0a; border: 1px solid #7f1d1d50; }
+.alert-card.important { background: #0f1a2e; border: 1px solid #1e3a5f50; }
+.alert-card.info { background: #0a1f0a; border: 1px solid #064e3b50; }
+.alert-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; white-space: nowrap; margin-top: 1px; }
+.badge-critique { background: #7f1d1d; color: #fca5a5; }
+.badge-important { background: #1e3a5f; color: #93c5fd; }
+.badge-info { background: #064e3b; color: #6ee7b7; }
+.alert-titre { font-size: 12.5px; font-weight: 600; color: #e2e8f0; margin-bottom: 3px; }
+.alert-detail { font-size: 11.5px; color: #6b7280; line-height: 1.5; }
+
+/* ── MODULE BARS ── */
+.module-grid { display: flex; flex-direction: column; gap: 10px; }
+.module-row { background: #1f2937; border: 1px solid #2d3748; border-radius: 8px; padding: 12px 16px; }
+.module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.module-name { font-size: 12.5px; font-weight: 600; color: #e2e8f0; }
+.module-stats { font-size: 11px; color: #6b7280; }
+.module-pct { font-size: 13px; font-weight: 700; }
+.progress-bar { height: 6px; background: #2d3748; border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 0.3s ease; }
+.fill-gold { background: linear-gradient(90deg, #8B4513, #c9a84c); }
+.fill-green { background: #10b981; }
+.fill-blue { background: #3b82f6; }
+.fill-gray { background: #4b5563; }
+.fill-empty { background: #2d3748; }
+
+/* ── SÉQUENCE INSTITUTIONNELLE ── */
+.sequence-timeline { display: flex; flex-direction: column; gap: 0; }
+.seq-item { display: flex; gap: 20px; position: relative; }
+.seq-item:not(:last-child) .seq-line { flex: 1; }
+.seq-left { display: flex; flex-direction: column; align-items: center; width: 36px; flex-shrink: 0; }
+.seq-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; z-index: 1; }
+.seq-dot.fait { background: #064e3b; color: #34d399; border: 2px solid #10b981; }
+.seq-dot.en_attente { background: #1e3a5f; color: #60a5fa; border: 2px solid #3b82f6; animation: pulse 2s infinite; }
+.seq-dot.a_faire { background: #1f2937; color: #6b7280; border: 2px solid #374151; }
+.seq-dot.optionnel { background: #2d1e0a; color: #c9a84c; border: 2px dashed #c9a84c; }
+.seq-connector { width: 2px; flex: 1; min-height: 24px; margin: 2px 0; }
+.conn-fait { background: #10b981; }
+.conn-attente { background: #3b82f650; }
+.conn-todo { background: #374151; }
+.seq-content { padding: 4px 0 20px; flex: 1; }
+.seq-acteur { font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 3px; }
+.seq-detail { font-size: 11.5px; color: #6b7280; line-height: 1.4; }
+.seq-tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; margin-top: 5px; }
+.stag-fait { background: #064e3b; color: #34d399; }
+.stag-attente { background: #1e3a5f; color: #60a5fa; }
+.stag-todo { background: #1f2937; color: #9ca3af; }
+.stag-opt { background: #2d1e0a; color: #c9a84c; }
+@keyframes pulse { 0%,100% { opacity: 1; box-shadow: 0 0 0 0 #3b82f640; } 50% { opacity: 0.8; box-shadow: 0 0 0 6px transparent; } }
+
+/* ── COST BREAKDOWN ── */
+.cb-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
+.cb-card { background: #1f2937; border: 1px solid #2d3748; border-radius: 10px; padding: 18px; }
+.cb-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.cb-scenario { font-size: 12px; font-weight: 700; color: #c9a84c; text-transform: uppercase; letter-spacing: 0.4px; }
+.cb-price { font-size: 20px; font-weight: 800; color: #f9fafb; }
+.cb-price span { font-size: 12px; font-weight: 500; color: #6b7280; }
+.cb-rows { display: flex; flex-direction: column; gap: 7px; }
+.cb-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+.cb-row-label { color: #9ca3af; }
+.cb-row-val { font-weight: 600; color: #e2e8f0; }
+.cb-row-val.highlight { color: #10b981; }
+.cb-divider { height: 1px; background: #2d3748; margin: 8px 0; }
+.cb-note { font-size: 10.5px; color: #4b5563; margin-top: 12px; padding-top: 10px; border-top: 1px solid #2d3748; }
+
+/* ── FORMULATIONS ── */
+.form-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.form-table th { background: #1a2035; color: #6b7280; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 9px 12px; text-align: left; border-bottom: 1px solid #2d3748; }
+.form-table td { padding: 10px 12px; border-bottom: 1px solid #1f2937; color: #d1d5db; }
+.form-table tr:hover td { background: #1a2035; }
+.form-table tr.highlight-row td { background: #2d1e0a20; }
+.badge-valide { display: inline-block; background: #064e3b; color: #34d399; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+.badge-exploration { display: inline-block; background: #1e3a5f; color: #60a5fa; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+
+/* ── DRIVE TABLE ── */
+.drive-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.drive-table th { background: #1a2035; color: #6b7280; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 9px 12px; text-align: left; border-bottom: 1px solid #2d3748; }
+.drive-table td { padding: 10px 12px; border-bottom: 1px solid #1f2937; color: #d1d5db; vertical-align: middle; }
+.drive-table tr:hover td { background: #1a2035; }
+.drive-link { color: #c9a84c; text-decoration: none; font-size: 11px; }
+.drive-link:hover { text-decoration: underline; }
+.badge-module { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
+.mod-00 { background: #1e3a5f; color: #93c5fd; }
+.mod-01 { background: #064e3b; color: #6ee7b7; }
+.mod-02 { background: #3d1a00; color: #fb923c; }
+.mod-03 { background: #1e1a3f; color: #a78bfa; }
+.mod-06 { background: #1a2e1a; color: #86efac; }
+.mod-07 { background: #2d1e0a; color: #c9a84c; }
+.mod-09 { background: #1a2035; color: #94a3b8; }
+.badge-en-attente { display: inline-block; background: #451a03; color: #fbbf24; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+
+/* ── DÉPENDANCES ── */
+.dep-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.dep-card { background: #1f2937; border: 1px solid #2d3748; border-radius: 10px; padding: 16px; }
+.dep-title { font-size: 12px; font-weight: 700; color: #c9a84c; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #2d3748; }
+.dep-item { font-size: 11.5px; color: #9ca3af; padding: 5px 0; border-bottom: 1px solid #1f2937; display: flex; align-items: center; gap: 8px; }
+.dep-item:last-child { border-bottom: none; }
+.dep-icon { font-size: 10px; }
+.dep-blocant { color: #f87171; }
+.dep-pending { color: #fbbf24; }
+.dep-ok { color: #34d399; }
+
+/* ── RÉSEAU INSTITUTIONNEL ── */
+.reseau-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.reseau-card { background: #1f2937; border: 1px solid #2d3748; border-radius: 10px; padding: 16px; }
+.reseau-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.reseau-org { font-size: 13px; font-weight: 700; color: #e2e8f0; }
+.reseau-status { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+.rs-actif { background: #064e3b; color: #34d399; }
+.rs-attente { background: #1e3a5f; color: #60a5fa; }
+.rs-planif { background: #2d2d0a; color: #fbbf24; }
+.rs-todo { background: #1f2937; color: #6b7280; }
+.reseau-contact { font-size: 11.5px; color: #9ca3af; margin-bottom: 4px; }
+.reseau-note { font-size: 11px; color: #4b5563; line-height: 1.4; }
+.reseau-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.rtag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #2d3748; color: #9ca3af; }
+
+/* ── PROGRESS RING ── */
+.progress-ring-container { display: flex; flex-direction: column; align-items: center; }
+svg.ring { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: #2d3748; stroke-width: 8; }
+.ring-fill { fill: none; stroke: #c9a84c; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.8s ease; }
+.ring-center { text-anchor: middle; dominant-baseline: middle; }
+
+/* ── TWO COLS ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+/* ── HISTORIQUE ── */
+.hist-list { display: flex; flex-direction: column; gap: 8px; }
+.hist-item { background: #1f2937; border: 1px solid #2d3748; border-radius: 8px; padding: 12px 16px; display: flex; gap: 16px; align-items: flex-start; }
+.hist-date { font-size: 10.5px; font-weight: 700; color: #6b7280; min-width: 72px; padding-top: 1px; }
+.hist-body { flex: 1; }
+.hist-titre { font-size: 12.5px; font-weight: 600; color: #e2e8f0; margin-bottom: 2px; }
+.hist-meta { font-size: 11px; color: #4b5563; }
+
+/* ── SCROLL FIX ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #111827; }
+::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<script>
+// ── TRACKING DATA — source: TRACKING_SNAPSHOT_31032026.json ──
+const TRACKING_DATA = {
+  meta: { date_snapshot: "2026-03-31", version_dashboard: "v3" },
+  stats: { total: 88, valide: 28, vide: 50, obsolete: 7, support: 3, brouillon: 0, en_revue: 0, avancement_pct: 35.9 },
+  avancement_par_module: {
+    "00_PILOTAGE": { valide: 8, total: 9, pct: 88.9 },
+    "01_GOUVERNANCE_ET_CAPITAL": { valide: 2, total: 6, pct: 33.3 },
+    "02_JURIDIQUE_ET_CONFORMITE": { valide: 8, total: 12, pct: 66.7 },
+    "03_PRODUIT_ET_FORMULATION": { valide: 0, total: 5, pct: 0.0 },
+    "04_IDENTITE_ET_MARQUE": { valide: 0, total: 5, pct: 0.0 },
+    "05_MODELE_ECONOMIQUE": { valide: 0, total: 5, pct: 0.0 },
+    "06_INDUSTRIEL_ET_SUPPLY_CHAIN": { valide: 1, total: 6, pct: 16.7 },
+    "07_MARCHE_ET_DISTRIBUTION": { valide: 7, total: 13, pct: 53.8 },
+    "08_VALIDATION_TERRAIN": { valide: 0, total: 5, pct: 0.0 },
+    "09_EQUIPE_ET_PARTENAIRES": { valide: 1, total: 6, pct: 16.7 },
+    "10_LANCEMENT": { valide: 0, total: 5, pct: 0.0 }
+  },
+  alertes: [
+    { niveau: "CRITIQUE", titre: "Arbitrer la formule avant SOPRANO", detail: "Le PAE de Poitiers demande un échantillon physique. Trancher TAV (8% ou 12%) + ratio Cognac/Pineau — déblocant n°1 de toute la chaîne." },
+    { niveau: "INFO", titre: "Mail CCI Bouchery envoyé ✅", detail: "Dispatché le 31/03/2026 à l'équipe Patricia Bouchery. Retour attendu sous 3-7 jours. Prochaine étape : RDV CCI." },
+    { niveau: "IMPORTANT", titre: "Immatriculation Lézéka", detail: "Coût ~294 EUR · délai SIRET définitif 3-4 semaines · Kbis provisoire 48h. Séquence : attendre retour CCI avant immatriculation." },
+    { niveau: "IMPORTANT", titre: "Devis fournisseurs à lancer", detail: "Bouteille verre : Saverglass · Berlin Packaging · Verrerie du Sud. Co-packing ROY : confirmer 0,55 EUR hors grille <10k btl." },
+    { niveau: "IMPORTANT", titre: "Naming 'La Lettre' vs BNIC", detail: "Risque non résolu. Règle active : pas d'appellation 'Grande Champagne' dans toute communication externe. Session dédiée post-CCI." }
+  ],
+  sequence: [
+    { etape: 1, acteur: "Appel CVC Cognac", statut: "FAIT", detail: "Effectué le 30/03/2026 — procédure SOPRANO confirmée" },
+    { etape: 2, acteur: "Contact CCI Bouchery", statut: "FAIT", detail: "Mail dispatché le 31/03/2026 — en attente retour (3-7 jours)" },
+    { etape: 3, acteur: "RDV CCI", statut: "EN_ATTENTE", detail: "Retour Bouchery attendu" },
+    { etape: 4, acteur: "Immatriculation Lézéka", statut: "A_FAIRE", detail: "Après retour CCI · ~294 EUR · SIRET en 3-4 semaines" },
+    { etape: 5, acteur: "SOPRANO classement fiscal", statut: "A_FAIRE", detail: "Nécessite SIRET + formule arbitrée + échantillon physique" },
+    { etape: 6, acteur: "PAE Poitiers + échantillon", statut: "A_FAIRE", detail: "Dépend SOPRANO + formule physique disponible" },
+    { etape: 7, acteur: "BNIC", statut: "A_FAIRE", detail: "Peut être coordonné via CCI (contact Bouchery)" },
+    { etape: 8, acteur: "Spirits Valley", statut: "OPTIONNEL", detail: "Accélérateur — activation post-validation institutionnelle" },
+    { etape: 9, acteur: "HMRC / Agents UK", statut: "A_FAIRE", detail: "Import & distribution UK — phase finale" }
+  ],
+  valides: [
+    { id: "00_1_feuille_de_route_projet", nom: "Feuille de route projet", module: "00_PILOTAGE", version: "v1", date: "2026-03-13", drive: "https://docs.google.com/spreadsheets/d/1IxbpYrAPg5qCf9eWpLQRan98z66jCSIbnuqteKAjE7w/edit?usp=drivesdk" },
+    { id: "00_2_dashboard_rtd", nom: "Dashboard RTD", module: "00_PILOTAGE", version: "v2", date: "2026-03-12", drive: "https://drive.google.com/file/d/18uRSM9GWia8wr-8fFnuXljxASq3clFu7/view?usp=drivesdk" },
+    { id: "00_0_team_claude", nom: "Team Claude — Organisation IA", module: "00_PILOTAGE", version: "v2", date: "2026-03-13", drive: "https://docs.google.com/document/d/1gZf0pExvSGuuZVejdYQMIHGol8wQAbBilMPWm1b7860/edit?usp=drivesdk" },
+    { id: "session_20260324_01", nom: "Roadmap Stratégique — Lancement UK", module: "00_PILOTAGE", version: "v1", date: "2026-03-24", drive: "https://docs.google.com/document/d/1gRzz5SPuywdFpX7afrm7An2rR5kR3FhFg1VVJrEM9wU/edit" },
+    { id: "session_20260324_02", nom: "Décisions Actées — 24 mars 2026", module: "00_PILOTAGE", version: "v1", date: "2026-03-24", drive: "https://docs.google.com/document/d/1_DNih8zG_r1t7CvQvTfYvPU9iIILvx3ynYQKJ068FSA/edit" },
+    { id: "session_20260324_03", nom: "Plan d'Actions Immédiates — Mars/Avril 2026", module: "00_PILOTAGE", version: "v1", date: "2026-03-24", drive: "https://docs.google.com/document/d/17OMsnCan3xjpwPzFTuzTdAKd4VPoaKOYDI4_t5_m6Ok/edit" },
+    { id: "session_20260325_decisions_actees_v2", nom: "Décisions Actées — 25 mars 2026 (UK)", module: "00_PILOTAGE", version: "v2", date: "2026-03-25", drive: "https://docs.google.com/document/d/1I4Py63dgLEfeGEXR4LljCrazMe81RFbofE8p_ZfZ19w/edit?usp=drivesdk" },
+    { id: "00_2_referentiel_commandes", nom: "Référentiel des commandes RTD", module: "00_PILOTAGE", version: "v1", date: "2026-03-27", drive: "https://drive.google.com/file/d/1XKMXrGSovoqIhXqXsPZqvA63ufx4VwAH/view?usp=drivesdk" },
+    { id: "01_1_choix_structure_juridique", nom: "Note choix structure juridique", module: "01_GOUVERNANCE_ET_CAPITAL", version: "v2", date: "2026-03-13", drive: "https://docs.google.com/document/d/1s9imVz9E55vLPkZM10aVyaqRkt45cSlqZToXFXtNJ-A/edit?usp=drivesdk" },
+    { id: "session_20260324_04", nom: "Stratégie Partenaires & Capitalisation", module: "01_GOUVERNANCE_ET_CAPITAL", version: "v1", date: "2026-03-24", drive: "https://docs.google.com/document/d/1bvuJSyA3PYnAlO_1-AhjJ_z2TD3ntgLSSoNkbeaaiE8/edit" },
+    { id: "02_1_note_juridique_rtd", nom: "Note juridique — Classification, Étiquetage, BNIC", module: "02_JURIDIQUE_ET_CONFORMITE", version: "v2", date: "2026-03-27", drive: "https://docs.google.com/document/d/1Komq28BP6NsIv2NEfUEJW3CTADUvx93NCh7N3A5cmLg/edit?usp=drivesdk" },
+    { id: "02_1_prep_rdv_cci", nom: "Préparation RDV CCI Cognac", module: "02_JURIDIQUE_ET_CONFORMITE", version: "v1", date: "2026-03-27", drive: "https://docs.google.com/document/d/1YLE202es-hbd54hKdG6KzECxdEE6UJV1ko_UwpAzH9k/edit?usp=drivesdk" },
+    { id: "02_1_carto_relations_institutionnelles", nom: "Cartographie des relations institutionnelles", module: "02_JURIDIQUE_ET_CONFORMITE", version: "v1", date: "2026-03-27", drive: "https://drive.google.com/file/d/1cGlQHgNofVehxEB7Ley0868N-_WeHrn9/view?usp=drivesdk" },
+    { id: "02_1_chemin_institutionnel", nom: "Chemin institutionnel préférentiel — 5 étapes", module: "02_JURIDIQUE_ET_CONFORMITE", version: "v2", date: "2026-03-27", drive: "https://drive.google.com/file/d/1DqDmbnuLeX4q-5mthns5p7XY_7qAEoRj/view?usp=drivesdk" },
+    { id: "02_4_fiche_soprano_immatriculation", nom: "Fiche procédure SOPRANO + Immatriculation Lézéka", module: "02_JURIDIQUE_ET_CONFORMITE", version: "v1", date: "2026-03-30", drive: "https://docs.google.com/document/d/1Zr-IdCvzrFfxInWAlBpmOTt0RzCDRw9XF0fCKD457oA/edit?usp=drivesdk" },
+    { id: "02_4_trame_appel_douanes", nom: "Trame appel Douanes — CVC Cognac", module: "02_JURIDIQUE_ET_CONFORMITE", version: "v1", date: "2026-03-27", drive: "https://docs.google.com/document/d/1H0WCBOP-o7DFEB0xNlAX0h1Dia6c7uAIC2dnmpXyZtE/edit?usp=drivesdk" },
+    { id: "02_4_note_fiscalite_alcool", nom: "Note de synthèse fiscale UK", module: "02_JURIDIQUE_ET_CONFORMITE", version: "v1", date: "2026-03-28", drive: "https://docs.google.com/document/d/1lnQxpPBPHcR6l0EAqR5KqsMz69jpIjFX0JsoN1whlMI/edit?usp=drivesdk" },
+    { id: "02_1_mail_cci_bouchery", nom: "Mail CCI Bouchery — Demande accompagnement", module: "02_JURIDIQUE_ET_CONFORMITE", version: "v2", date: "2026-03-30", drive: null, push_drive: "EN_ATTENTE" },
+    { id: "session_20260326_note_prix_matieres", nom: "Note prix matières premières — Cognac & Pineau 2026", module: "06_INDUSTRIEL_ET_SUPPLY_CHAIN", version: "v1", date: "2026-03-26", drive: "https://docs.google.com/document/d/1SinL7MatVPKdhaSjxBnOBrVnatM66bB3r3-m1C-AdOw/edit?usp=drivesdk" },
+    { id: "session_20260325_06", nom: "Étude visuelle RTD Premium UK — Waitrose / Selfridges", module: "07_MARCHE_ET_DISTRIBUTION", version: "v1", date: "2026-03-25", drive: "https://docs.google.com/document/d/19nYHf8xWd6LtJeG-wFV7x2odpOrS58D-lV0ek9EvWu8/edit?usp=drivesdk" },
+    { id: "session_20260325_07", nom: "Fiche Concurrentielle Black Lines Drinks", module: "07_MARCHE_ET_DISTRIBUTION", version: "v1", date: "2026-03-25", drive: "https://docs.google.com/document/d/1thnKDsLCN4f1Ym6ruhcNUaLjHGSwbKR1d7F5qwXarJg/edit?usp=drivesdk" },
+    { id: "session_20260325_cost_breakdown_v2", nom: "Cost Breakdown UK v2 — formules", module: "07_MARCHE_ET_DISTRIBUTION", version: "v2", date: "2026-03-25", drive: "https://docs.google.com/spreadsheets/d/1nf30HxkgJBJ1SbAGgjdP14Mwe2ur-7ObrNPUfZGH1gQ/edit?usp=drivesdk" },
+    { id: "session_20260326_08", nom: "Pricing Terrain On-Trade Londres", module: "07_MARCHE_ET_DISTRIBUTION", version: "v1", date: "2026-03-26", drive: "https://docs.google.com/document/d/1B1CZUNxhjgV4-F08hED-mtvWFMlMw8g3iAT6yGwPU5Y/edit?usp=drivesdk" },
+    { id: "07_0_etude_comparative_beia", nom: "Étude comparative BEIA — RTD Cognac vs La Lettre", module: "07_MARCHE_ET_DISTRIBUTION", version: "v1", date: "2026-03-28", drive: null, push_drive: "EN_ATTENTE" },
+    { id: "BEIA_CB_v7", nom: "Cost Breakdown UK v7 — 50cl vs 66cl", module: "07.0_BEIA", version: "v7", date: "2026-03-28", drive: "https://docs.google.com/spreadsheets/d/1zxOydfZVRGT24otfvGXq0xLtnenV3eIWnT9ExUzXS94/edit?usp=drivesdk" },
+    { id: "session_20260324_05", nom: "Argumentaire Négociation Jean Fort", module: "09_EQUIPE_ET_PARTENAIRES", version: "v1", date: "2026-03-24", drive: "https://docs.google.com/document/d/1GsgMGzVMmJ3oMdkgcrhG5QHCU2qMwECmLFOiHXej8FU/edit" },
+    { id: "beia_s3_produit_economique", nom: "S3 Produit Économique (BEIA)", module: "03_MARCHE_ET_POSITIONNEMENT", version: "v1", date: "2026-03-28", drive: null, push_drive: "EN_ATTENTE" },
+    { id: "beia_cadrage_s5", nom: "CADRAGE S5 (BEIA)", module: "07_MARCHE_ET_DISTRIBUTION", version: "v1", date: "2026-03-28", drive: null, push_drive: "EN_ATTENTE" }
+  ]
+};
+</script>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-top">
+    <div class="header-brand">
+      <div class="brand-dot">🥃</div>
+      <div>
+        <h1>Dashboard RTD — La Lettre <span style="color:#c9a84c">v3</span></h1>
+        <div class="sub">Cognac Grande Champagne + Pineau des Charentes Jean Fort · UK On-Trade Premium</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="last-update">Snapshot : 31/03/2026 <span class="phase-tag">Phase 0 — Fondation</span></div>
+      <div style="margin-top:4px;font-size:10px;color:#374151;">Source : TRACKING_SNAPSHOT_31032026.json</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="showTab(0)">🎯 Vue Projet <span class="tab-badge" id="badge-alertes">2</span></div>
+    <div class="tab" onclick="showTab(1)">📦 Modules <span class="tab-badge" id="badge-modules">11</span></div>
+    <div class="tab" onclick="showTab(2)">🏛️ Séquence Institutionnelle <span class="tab-badge">9</span></div>
+    <div class="tab" onclick="showTab(3)">💰 Cost Breakdown <span class="tab-badge">4</span></div>
+    <div class="tab" onclick="showTab(4)">🔗 Dépendances</div>
+    <div class="tab" onclick="showTab(5)">📁 Historique & Drive <span class="tab-badge" id="badge-valides">28</span></div>
+    <div class="tab" onclick="showTab(6)">🤝 Réseau Institutionnel</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB 0 — VUE PROJET -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="tab-content active" id="tab-0">
+  <div class="container">
+
+    <!-- KPIs -->
+    <div class="kpi-grid" style="margin-top:8px;">
+      <div class="kpi-card">
+        <div class="kpi-value gold">35,9%</div>
+        <div class="kpi-label">Avancement global</div>
+        <div class="kpi-sub">Phase 0 — Fondation</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value green">28</div>
+        <div class="kpi-label">Livrables VALIDE</div>
+        <div class="kpi-sub">sur 78 actifs</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value gray">50</div>
+        <div class="kpi-label">Livrables VIDE</div>
+        <div class="kpi-sub">à produire</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value orange">4</div>
+        <div class="kpi-label">Push Drive EN_ATTENTE</div>
+        <div class="kpi-sub">Sync à faire</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value red">2</div>
+        <div class="kpi-label">Alertes CRITIQUE</div>
+        <div class="kpi-sub">Blocantes SOPRANO</div>
+      </div>
+    </div>
+
+    <!-- FOCUS DU JOUR -->
+    <div class="focus-block">
+      <div class="focus-header">
+        <span class="focus-icon">🎯</span>
+        <div>
+          <div class="focus-title">Prochaines actions — Session prioritaire</div>
+          <div class="focus-subtitle">Mis à jour le 31/03/2026</div>
+        </div>
+      </div>
+      <div class="focus-actions">
+        <div class="focus-action" style="border-color:#064e3b;">
+          <div class="focus-action-num" style="color:#10b981;">✅ FAIT</div>
+          <div class="focus-action-name">Mail CCI Bouchery envoyé</div>
+          <div class="focus-action-meta">Dispatché le 31/03 — en attente retour 3-7 jours</div>
+          <span class="focus-action-tag" style="background:#064e3b;color:#34d399;">ENVOYÉ</span>
+        </div>
+        <div class="focus-action">
+          <div class="focus-action-num">Action 2</div>
+          <div class="focus-action-name">Arbitrer la formule TAV + ratio</div>
+          <div class="focus-action-meta">Appel Jean Fort — déblocant SOPRANO</div>
+          <span class="focus-action-tag tag-critique">CRITIQUE</span>
+        </div>
+        <div class="focus-action">
+          <div class="focus-action-num">Action 3</div>
+          <div class="focus-action-name">Lancer devis fournisseurs</div>
+          <div class="focus-action-meta">Saverglass · Berlin Pkg · ROY</div>
+          <span class="focus-action-tag tag-haute">HAUTE</span>
+        </div>
+        <div class="focus-action">
+          <div class="focus-action-num">Action 4</div>
+          <div class="focus-action-name">Synchronisation Drive</div>
+          <div class="focus-action-meta">4 livrables EN_ATTENTE push</div>
+          <span class="focus-action-tag tag-haute">HAUTE</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <!-- ALERTES -->
+      <div class="section">
+        <div class="section-title">🚨 Alertes actives</div>
+        <div class="alert-list" id="alertes-container"></div>
+      </div>
+
+      <!-- AVANCEMENT VISUEL -->
+      <div class="section">
+        <div class="section-title">📊 Avancement global</div>
+        <div style="background:#1f2937;border:1px solid #2d3748;border-radius:10px;padding:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div>
+              <div style="font-size:32px;font-weight:800;color:#c9a84c;letter-spacing:-1px;">35,9%</div>
+              <div style="font-size:12px;color:#6b7280;margin-top:2px;">28 VALIDE / 78 livrables actifs</div>
+            </div>
+            <svg width="80" height="80" class="ring">
+              <circle class="ring-bg" cx="40" cy="40" r="32"/>
+              <circle class="ring-fill" cx="40" cy="40" r="32"
+                stroke-dasharray="201.1"
+                stroke-dashoffset="128.7"/>
+            </svg>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="color:#9ca3af;">✅ VALIDE</span><span style="color:#10b981;font-weight:700;">28</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="color:#9ca3af;">⬜ VIDE</span><span style="color:#6b7280;font-weight:700;">50</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="color:#9ca3af;">⚰️ OBSOLETE</span><span style="color:#4b5563;font-weight:700;">7</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="color:#9ca3af;">📄 SUPPORT</span><span style="color:#60a5fa;font-weight:700;">3</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding-top:8px;border-top:1px solid #2d3748;">
+              <span style="color:#9ca3af;font-weight:700;">TOTAL</span><span style="color:#e2e8f0;font-weight:700;">88</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DÉCISIONS ACTÉES -->
+    <div class="section">
+      <div class="section-title">⚡ Décisions actées (définitives)</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <div style="background:#1f2937;border:1px solid #2d3748;border-radius:8px;padding:12px;">
+          <div style="font-size:10px;color:#c9a84c;font-weight:700;margin-bottom:6px;">ÉTIQUETTE</div>
+          <div style="font-size:12px;color:#e2e8f0;">Face avant : <strong>Fine sparkling aperitif</strong></div>
+          <div style="font-size:12px;color:#e2e8f0;margin-top:4px;">Contre-étiquette : <strong>Cognac-based</strong></div>
+          <div style="font-size:10.5px;color:#4b5563;margin-top:6px;">Validé 27/03</div>
+        </div>
+        <div style="background:#1f2937;border:1px solid #2d3748;border-radius:8px;padding:12px;">
+          <div style="font-size:10px;color:#c9a84c;font-weight:700;margin-bottom:6px;">CLASSIFICATION</div>
+          <div style="font-size:12px;color:#e2e8f0;">NC <strong>2208 90</strong></div>
+          <div style="font-size:11px;color:#6b7280;margin-top:4px;">À confirmer via SOPRANO</div>
+          <div style="font-size:10.5px;color:#4b5563;margin-top:6px;">Validé 30/03</div>
+        </div>
+        <div style="background:#1f2937;border:1px solid #2d3748;border-radius:8px;padding:12px;">
+          <div style="font-size:10px;color:#c9a84c;font-weight:700;margin-bottom:6px;">COMMUNICATION EXTERNE</div>
+          <div style="font-size:12px;color:#e2e8f0;"><strong>"eaux-de-vie de Cognac"</strong></div>
+          <div style="font-size:11px;color:#6b7280;margin-top:4px;">Pas "Grande Champagne" — risque BNIC</div>
+          <div style="font-size:10.5px;color:#4b5563;margin-top:6px;">Validé 31/03</div>
+        </div>
+        <div style="background:#1f2937;border:1px solid #2d3748;border-radius:8px;padding:12px;">
+          <div style="font-size:10px;color:#c9a84c;font-weight:700;margin-bottom:6px;">VOLUME PHASE 0</div>
+          <div style="font-size:15px;font-weight:700;color:#e2e8f0;">~3 000 btl</div>
+          <div style="font-size:10.5px;color:#4b5563;margin-top:6px;">Validé 28/03</div>
+        </div>
+        <div style="background:#1f2937;border:1px solid #2d3748;border-radius:8px;padding:12px;">
+          <div style="font-size:10px;color:#c9a84c;font-weight:700;margin-bottom:6px;">IMPORTATEUR UK</div>
+          <div style="font-size:12px;color:#e2e8f0;">Equity <strong>12,5%</strong> / Commission <strong>15%</strong></div>
+          <div style="font-size:10.5px;color:#4b5563;margin-top:6px;">Validé 14/03</div>
+        </div>
+        <div style="background:#1f2937;border:1px solid #2d3748;border-radius:8px;padding:12px;">
+          <div style="font-size:10px;color:#c9a84c;font-weight:700;margin-bottom:6px;">SÉQUENCE INSTITUTIONNELLE</div>
+          <div style="font-size:11px;color:#e2e8f0;">CCI → Immat Lézéka → SOPRANO → PAE</div>
+          <div style="font-size:10.5px;color:#4b5563;margin-top:6px;">Validé 30/03</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB 1 — MODULES -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-1">
+  <div class="container">
+    <div class="section-title" style="margin-top:8px;">📦 Avancement par module</div>
+    <div class="module-grid" id="modules-container"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB 2 — SÉQUENCE INSTITUTIONNELLE -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-2">
+  <div class="container">
+    <div style="margin-top:8px;margin-bottom:20px;">
+      <div style="background:#2d1e0a;border:1px solid #c9a84c30;border-radius:10px;padding:14px 18px;font-size:12px;color:#c9a84c;">
+        📍 <strong>État au 31/03/2026</strong> — CVC Cognac : EFFECTUÉ · Contact CCI Bouchery : EFFECTUÉ · RDV CCI : EN ATTENTE (3-7 jours)
+      </div>
+    </div>
+    <div class="sequence-timeline" id="sequence-container"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB 3 — COST BREAKDOWN -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-3">
+  <div class="container">
+    <div style="background:#2d1e0a;border:1px solid #c9a84c30;border-radius:10px;padding:14px 18px;font-size:12px;color:#c9a84c;margin-bottom:20px;margin-top:8px;">
+      💰 Source : <strong>Cost Breakdown UK v8 — Mangrove</strong> · 50cl / 66cl / 25cl canette · Structure importateur : Equity 20% + Markup 20% · Mars 2026
+    </div>
+
+    <!-- SOUS-ONGLETS CB -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;">
+      <div id="cb-tab-0" onclick="showCBTab(0)" style="padding:14px 16px;font-size:13px;font-weight:700;color:#c9a84c;cursor:pointer;border:2px solid #c9a84c;border-radius:8px;background:#2d1e0a;text-align:center;">
+        🍾 50cl Bouteille
+        <div style="font-size:10px;font-weight:400;color:#c9a84c;margin-top:3px;opacity:0.8;">Lancement · 2 scénarios ABV</div>
+      </div>
+      <div id="cb-tab-1" onclick="showCBTab(1)" style="padding:14px 16px;font-size:13px;font-weight:700;color:#6b7280;cursor:pointer;border:2px solid #2d3748;border-radius:8px;background:#111827;text-align:center;">
+        🍾 66cl Bouteille
+        <div style="font-size:10px;font-weight:400;color:#6b7280;margin-top:3px;">Phase 1 · 2 scénarios ABV</div>
+      </div>
+      <div id="cb-tab-2" onclick="showCBTab(2)" style="padding:14px 16px;font-size:13px;font-weight:700;color:#6b7280;cursor:pointer;border:2px solid #2d3748;border-radius:8px;background:#111827;text-align:center;">
+        🥫 25cl Canette
+        <div style="font-size:10px;font-weight:400;color:#6b7280;margin-top:3px;">Complément · 3 volumes + ABV</div>
+      </div>
+    </div>
+
+    <!-- 50cl -->
+    <div id="cb-content-0">
+      <div class="cb-grid" style="margin-bottom:20px;">
+        <div class="cb-card">
+          <div class="cb-header">
+            <div>
+              <div class="cb-scenario">50cl — 8% ABV</div>
+              <div style="font-size:11px;color:#6b7280;margin-top:2px;">Cognac 33ml / Pineau 157ml / Eau+bota 310ml — ABV calculé : 7,98%</div>
+            </div>
+            <div class="cb-price">£30 <span>conso</span></div>
+          </div>
+          <div class="cb-rows">
+            <div class="cb-row"><span class="cb-row-label">PRU Landed UK</span><span class="cb-row-val">4,49 EUR/btl</span></div>
+            <div class="cb-row"><span class="cb-row-label">PRU Export Lézéka (€)</span><span class="cb-row-val">9,15 EUR/btl</span></div>
+            <div class="cb-row"><span class="cb-row-label">Revenu net Lézéka</span><span class="cb-row-val highlight">4,66 EUR/btl</span></div>
+            <div class="cb-row"><span class="cb-row-label">Marge nette</span><span class="cb-row-val">50,9%</span></div>
+            <div class="cb-row"><span class="cb-row-label">Seuil — Phase 0 (20k€ CF)</span><span class="cb-row-val">4 293 btl</span></div>
+            <div class="cb-row"><span class="cb-row-label">Seuil — Phase 1 (40k€ CF)</span><span class="cb-row-val">8 587 btl</span></div>
+          </div>
+          <div class="cb-note">UK Duty : £1,06/btl (taux £26,61/LPA — ABV &lt; 8,5%) · Customs : 0% (EUR.1 via Jean Fort)</div>
+        </div>
+        <div class="cb-card" style="border-color:#c9a84c40;">
+          <div class="cb-header">
+            <div>
+              <div class="cb-scenario" style="display:flex;align-items:center;gap:8px;">50cl — 12% ABV <span style="background:#c9a84c20;color:#c9a84c;font-size:9px;padding:2px 6px;border-radius:4px;">RÉFÉRENCE</span></div>
+              <div style="font-size:11px;color:#6b7280;margin-top:2px;">Cognac 50ml / Pineau 235ml / Eau+bota 215ml — ABV calculé : 12,0%</div>
+            </div>
+            <div class="cb-price">£36 <span>conso</span></div>
+          </div>
+          <div class="cb-rows">
+            <div class="cb-row"><span class="cb-row-label">PRU Landed UK</span><span class="cb-row-val">5,78 EUR/btl</span></div>
+            <div class="cb-row"><span class="cb-row-label">PRU Export Lézéka (€)</span><span class="cb-row-val">10,43 EUR/btl</span></div>
+            <div class="cb-row"><span class="cb-row-label">Revenu net Lézéka</span><span class="cb-row-val highlight">4,65 EUR/btl</span></div>
+            <div class="cb-row"><span class="cb-row-label">Marge nette</span><span class="cb-row-val">44,6%</span></div>
+            <div class="cb-row"><span class="cb-row-label">Seuil — Phase 0 (20k€ CF)</span><span class="cb-row-val">4 299 btl</span></div>
+            <div class="cb-row"><span class="cb-row-label">Seuil — Phase 1 (40k€ CF)</span><span class="cb-row-val">8 599 btl</span></div>
+          </div>
+          <div class="cb-note">UK Duty : £1,84/btl (taux £30,62/LPA — ABV ≥ 8,5%) · Δ vs 8% : +£0,77/btl · <strong>Revenus quasi-identiques</strong> malgré Duty supérieure</div>
+        </div>
+      </div>
+      <div style="background:#0f1a0a;border:1px solid #064e3b50;border-radius:8px;padding:12px 16px;font-size:11.5px;color:#9ca3af;">
+        ✅ <strong style="color:#34d399;">VERDICT 50cl :</strong> Les deux scénarios sont viables. Le 12% génère un revenu net quasi-identique au 8% (4,65€ vs 4,66€) grâce à un prix conso supérieur (£36 vs £30). Seuil Phase 0 légèrement au-dessus des 3 000 btl dans les deux cas — à surveiller.
+      </div>
+    </div>
+
+    <!-- 66cl -->
+    <div id="cb-content-1" style="display:none;">
+      <div class="cb-grid" style="margin-bottom:20px;">
+        <div class="cb-card">
+          <div class="cb-header">
+            <div>
+              <div class="cb-scenario">66cl — 8% ABV</div>
+              <div style="font-size:11px;color:#6b7280;margin-top:2px;">Cognac 44ml / Pineau 207ml / Eau+bota 409ml — ABV : 8,0%</div>
+            </div>
+            <div class="cb-price">£30 <span>conso</span></div>
+          </div>
+          <div class="cb-rows">
+            <div class="cb-row"><span class="cb-row-label">PRU Landed UK</span><span class="cb-row-val">5,15 EUR/btl</span></div>
+            <div class="cb-row"><span class="cb-row-label">PRU Export Lézéka (£)</span><span class="cb-row-val">£7,58</span></div>
+            <div class="cb-row"><span class="cb-row-label">PRU Export Lézéka (€)</span><span class="cb-row-val">8,81 EUR/btl</span></div>
+            <div class="cb-row"><span class="cb-row-label">Revenu net Lézéka</span><span class="cb-row-val highlight">3,66 EUR/btl</span></div>
+            <div class="cb-row"><span class="cb-row-label">Marge nette</span><span class="cb-row-val">41,5%</span></div>
+            <div class="cb-row"><span class="cb-row-label">UK Duty</span><span class="cb-row-val">£1,40/btl</span></div>
+            <div class="cb-row"><span class="cb-row-label">Seuil Phase 0 (20k€ CF)</span><span class="cb-row-val" style="color:#f87171;">5 466 btl ⚠</span></div>
+            <div class="cb-row"><span class="cb-row-label">Seuil Phase 1 (40k€ CF)</span><span class="cb-row-val">10 932 btl</span></div>
+          </div>
+          <div class="cb-note">Seuil Phase 0 bien au-dessus des 3 000 btl de référence — format à réserver à la montée en volume</div>
+        </div>
+        <div class="cb-card">
+          <div class="cb-header">
+            <div>
+              <div class="cb-scenario">66cl — 12% ABV</div>
+              <div style="font-size:11px;color:#6b7280;margin-top:2px;">Cognac 66ml / Pineau 310ml / Eau+bota 284ml — ABV : 12,0%</div>
+            </div>
+            <div class="cb-price">£38 <span>conso</span></div>
+          </div>
+          <div class="cb-rows">
+            <div class="cb-row"><span class="cb-row-label">PRU Landed UK</span><span class="cb-row-val">6,85 EUR/btl</span></div>
+            <div class="cb-row"><span class="cb-row-label">PRU Export Lézéka (£)</span><span class="cb-row-val">£9,06</span></div>
+            <div class="cb-row"><span class="cb-row-label">PRU Export Lézéka (€)</span><span class="cb-row-val">10,54 EUR/btl</span></div>
+            <div class="cb-row"><span class="cb-row-label">Revenu net Lézéka</span><span class="cb-row-val highlight">3,69 EUR/btl</span></div>
+            <div class="cb-row"><span class="cb-row-label">Marge nette</span><span class="cb-row-val">35,0%</span></div>
+            <div class="cb-row"><span class="cb-row-label">UK Duty</span><span class="cb-row-val">£2,42/btl</span></div>
+            <div class="cb-row"><span class="cb-row-label">Seuil Phase 0 (20k€ CF)</span><span class="cb-row-val" style="color:#f87171;">5 419 btl ⚠</span></div>
+            <div class="cb-row"><span class="cb-row-label">Seuil Phase 1 (40k€ CF)</span><span class="cb-row-val">10 838 btl</span></div>
+          </div>
+          <div class="cb-note">Le 12% génère +0,03€/btl vs 8% malgré Duty supérieure (+£1,02) — prix conso £38 vs £30 compense</div>
+        </div>
+      </div>
+      <div style="background:#1f0a0a;border:1px solid #7f1d1d50;border-radius:8px;padding:12px 16px;font-size:11.5px;color:#9ca3af;">
+        ⚠️ <strong style="color:#f87171;">VERDICT 66cl :</strong> Viables mais seuils Phase 0 à ~5 400 btl (vs ~4 300 pour 50cl). Revenu net/btl inférieur (3,66–3,69€ vs 4,65€). Format à activer en Phase 1 si les volumes sont confirmés — pas recommandé pour le lancement.
+      </div>
+    </div>
+
+    <!-- 25cl CANETTE -->
+    <div id="cb-content-2" style="display:none;">
+      <div style="background:#0f1a2e;border:1px solid #1e3a5f50;border-radius:8px;padding:10px 16px;font-size:11.5px;color:#93c5fd;margin-bottom:16px;">
+        📦 Prix cible consommateur : <strong>£8,50</strong> (fourchette £8-9, décision 30/03) · GPM venue événementielle : 60% · Markup importateur : 20% · Canette aluminium 25cl
+      </div>
+
+      <!-- 4 cartes : 8% ×3 volumes + 12% synthèse -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;">
+
+        <div class="cb-card">
+          <div class="cb-header" style="flex-direction:column;align-items:flex-start;gap:4px;">
+            <div class="cb-scenario">25cl · 8% · 3 000 can.</div>
+            <div style="font-size:10px;color:#6b7280;margin-top:2px;">Cognac 16ml / Pineau 78ml / Eau 156ml · ABV 7,86%</div>
+          </div>
+          <div class="cb-rows">
+            <div class="cb-row"><span class="cb-row-label">PRU coût de revient</span><span class="cb-row-val">1,88 €/can.</span></div>
+            <div class="cb-row"><span class="cb-row-label">PRU Export Lézéka (£)</span><span class="cb-row-val">£2,40</span></div>
+            <div class="cb-row"><span class="cb-row-label">PRU Export Lézéka (€)</span><span class="cb-row-val">2,80 €/can.</span></div>
+            <div class="cb-row"><span class="cb-row-label">Revenu net</span><span class="cb-row-val highlight">0,93 €/can.</span></div>
+            <div class="cb-row"><span class="cb-row-label">UK Duty</span><span class="cb-row-val">£0,52/can.</span></div>
+            <div class="cb-row"><span class="cb-row-label">Seuil Phase 0</span><span class="cb-row-val">21 562 can.</span></div>
+          </div>
+          <div class="cb-note">Viable · économies d'échelle non encore atteintes à 3k</div>
+        </div>
+
+        <div class="cb-card">
+          <div class="cb-header" style="flex-direction:column;align-items:flex-start;gap:4px;">
+            <div class="cb-scenario">25cl · 8% · 5 000 can.</div>
+            <div style="font-size:10px;color:#6b7280;margin-top:2px;">Cognac 16ml / Pineau 78ml / Eau 156ml · ABV 7,86%</div>
+          </div>
+          <div class="cb-rows">
+            <div class="cb-row"><span class="cb-row-label">PRU coût de revient</span><span class="cb-row-val">1,70 €/can.</span></div>
+            <div class="cb-row"><span class="cb-row-label">PRU Export Lézéka (£)</span><span class="cb-row-val">£2,40</span></div>
+            <div class="cb-row"><span class="cb-row-label">PRU Export Lézéka (€)</span><span class="cb-row-val">2,80 €/can.</span></div>
+            <div class="cb-row"><span class="cb-row-label">Revenu net</span><span class="cb-row-val highlight">1,10 €/can.</span></div>
+            <div class="cb-row"><span class="cb-row-label">UK Duty</span><span class="cb-row-val">£0,52/can.</span></div>
+            <div class="cb-row"><span class="cb-row-label">Seuil Phase 0</span><span class="cb-row-val">18 115 can.</span></div>
+          </div>
+          <div class="cb-note">Marges meilleures grâce aux économies d'échelle packaging</div>
+        </div>
+
+        <div class="cb-card">
+          <div class="cb-header" style="flex-direction:column;align-items:flex-start;gap:4px;">
+            <div class="cb-scenario">25cl · 8% · 10 000 can.</div>
+            <div style="font-size:10px;color:#6b7280;margin-top:2px;">Cognac 16ml / Pineau 78ml / Eau 156ml · ABV 7,86%</div>
+          </div>
+          <div class="cb-rows">
+            <div class="cb-row"><span class="cb-row-label">PRU coût de revient</span><span class="cb-row-val">1,54 €/can.</span></div>
+            <div class="cb-row"><span class="cb-row-label">PRU Export Lézéka (£)</span><span class="cb-row-val">£2,40</span></div>
+            <div class="cb-row"><span class="cb-row-label">PRU Export Lézéka (€)</span><span class="cb-row-val">2,80 €/can.</span></div>
+            <div class="cb-row"><span class="cb-row-label">Revenu net</span><span class="cb-row-val highlight" style="color:#4ade80;">1,26 €/can.</span></div>
+            <div class="cb-row"><span class="cb-row-label">UK Duty</span><span class="cb-row-val">£0,52/can.</span></div>
+            <div class="cb-row"><span class="cb-row-label">Seuil Phase 0</span><span class="cb-row-val">15 823 can.</span></div>
+          </div>
+          <div class="cb-note">Meilleur scénario 8% — seuil encore élevé mais marge solide</div>
+        </div>
+
+        <div class="cb-card" style="border-color:#7f1d1d50;background:#1f0a0a;">
+          <div class="cb-header" style="flex-direction:column;align-items:flex-start;gap:4px;">
+            <div class="cb-scenario" style="color:#f87171;">25cl · 12% ABV</div>
+            <div style="font-size:10px;color:#6b7280;margin-top:2px;">Cognac 25ml / Pineau 118ml / Eau 107ml · ABV 12,0%</div>
+          </div>
+          <div class="cb-rows">
+            <div class="cb-row"><span class="cb-row-label">UK Duty</span><span class="cb-row-val" style="color:#f87171;">£0,92/can. (×1,76)</span></div>
+            <div class="cb-row"><span class="cb-row-label">PRU Export Lézéka (£)</span><span class="cb-row-val">£2,07</span></div>
+            <div class="cb-row"><span class="cb-row-label">Revenu net @ 3 000</span><span class="cb-row-val" style="color:#fbbf24;">0,05 €/can. ⚠</span></div>
+            <div class="cb-row"><span class="cb-row-label">Revenu net @ 5 000</span><span class="cb-row-val" style="color:#f59e0b;">0,22 €/can.</span></div>
+            <div class="cb-row"><span class="cb-row-label">Revenu net @ 10 000</span><span class="cb-row-val" style="color:#10b981;">0,38 €/can.</span></div>
+            <div class="cb-row"><span class="cb-row-label">Seuil @ 3 000</span><span class="cb-row-val" style="color:#ef4444;">417 607 can. ❌</span></div>
+          </div>
+          <div class="cb-note" style="color:#f87171;">Duty quasi-double du 8%. Marge négligeable à faible volume. Non recommandé.</div>
+        </div>
+      </div>
+
+      <div style="background:#0f1a0a;border:1px solid #064e3b50;border-radius:8px;padding:12px 16px;font-size:11.5px;color:#9ca3af;">
+        ✅ <strong style="color:#34d399;">VERDICT 25cl :</strong> <strong>8% ABV uniquement.</strong> Le 12% est pénalisé par une Duty quasi-double (£0,92 vs £0,52) avec le même prix conso £8,50 — marge quasi-nulle à 3k. Le 8% génère 0,93–1,26€/can. selon le volume. Format canette à ne lancer qu'en complément du 50cl dès que le volume est confirmé (≥ 5 000 unités).
+      </div>
+    </div>
+
+    <!-- FORMULATIONS -->
+    <div class="section-title" style="margin-top:24px;">Formulations de référence</div>
+    <table class="form-table">
+      <thead>
+        <tr><th>Scénario</th><th>Format</th><th>ABV calculé</th><th>Cognac</th><th>Pineau</th><th>Eau+Bota</th><th>UK Duty</th><th>Statut</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>A</td><td>50cl</td><td>7,98%</td><td>33ml</td><td>157ml</td><td>310ml</td><td>£1,06</td><td><span class="badge-valide">VALIDÉ</span></td></tr>
+        <tr><td>B</td><td>50cl</td><td>12,0%</td><td>50ml</td><td>235ml</td><td>215ml</td><td>£1,84</td><td><span class="badge-valide">VALIDÉ</span></td></tr>
+        <tr><td>C</td><td>66cl</td><td>8,0%</td><td>44ml</td><td>207ml</td><td>409ml</td><td>£1,40</td><td><span class="badge-valide">VALIDÉ</span></td></tr>
+        <tr><td>D</td><td>66cl</td><td>12,0%</td><td>66ml</td><td>310ml</td><td>284ml</td><td>£2,42</td><td><span class="badge-valide">VALIDÉ</span></td></tr>
+        <tr><td>E1</td><td>25cl</td><td>7,86%</td><td>16ml</td><td>78ml</td><td>156ml</td><td>£0,52</td><td><span class="badge-exploration">EXPLORATION</span></td></tr>
+        <tr><td>E2</td><td>25cl</td><td>12,0%</td><td>25ml</td><td>118ml</td><td>107ml</td><td>£0,92</td><td><span class="badge-exploration">EXPLORATION</span></td></tr>
+        <tr class="highlight-row"><td>B-v2</td><td>50cl</td><td>12%</td><td>92ml ⚠</td><td>137ml</td><td>271ml</td><td>~£1,84</td><td><span class="badge-exploration">EXPLORATION</span></td></tr>
+      </tbody>
+    </table>
+    <div style="font-size:11px;color:#4b5563;margin-top:8px;">⚠ B-v2 ratio 2:3 : Cognac dominant — impact PRU à évaluer. Non validée — en attente arbitrage Jean Fort.</div>
+
+    <div style="margin-top:20px;background:#1f2937;border:1px solid #2d3748;border-radius:10px;padding:14px 18px;">
+      <div style="font-size:11.5px;color:#e2e8f0;font-weight:700;margin-bottom:10px;">📎 Cost Breakdown UK v8 — Mangrove (Excel, 7 onglets)</div>
+      <div style="font-size:11px;color:#6b7280;margin-bottom:8px;">Onglets : Hypothèses 50cl · Cost Breakdown 50cl · Viabilité 50cl · Hypothèses 66cl · Viabilité 66cl · Hypothèses 25cl · Viabilité 25cl</div>
+      <a href="https://docs.google.com/spreadsheets/d/1zxOydfZVRGT24otfvGXq0xLtnenV3eIWnT9ExUzXS94/edit?usp=drivesdk" target="_blank" style="color:#c9a84c;font-size:12px;">→ Ouvrir COST_BREAKDOWN_UK_v8_mangrove.xlsx sur Drive</a>
+      <div style="font-size:10.5px;color:#4b5563;margin-top:6px;">⚠ Lien Drive à mettre à jour après push v8</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB 4 — DÉPENDANCES -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-4">
+  <div class="container">
+    <div style="margin-top:8px;margin-bottom:20px;background:#1f0a0a;border:1px solid #7f1d1d50;border-radius:10px;padding:14px 18px;">
+      <div style="font-size:12px;font-weight:700;color:#f87171;margin-bottom:6px;">🔴 CHAÎNE BLOCANTE : Formule → SOPRANO → PAE Poitiers → Échantillon physique</div>
+      <div style="font-size:11.5px;color:#9ca3af;">Aucune action de dépôt officiel n'est possible tant que TAV et ratio ne sont pas tranchés avec Jean Fort.</div>
+    </div>
+
+    <div class="dep-grid">
+      <div class="dep-card">
+        <div class="dep-title">🎯 Module 03 — Produit & Formulation</div>
+        <div class="dep-item dep-blocant"><span class="dep-icon">🔴</span> Arbitrage TAV (8% ou 12%) — bloqué</div>
+        <div class="dep-item dep-blocant"><span class="dep-icon">🔴</span> Ratio Cognac/Pineau — non tranché</div>
+        <div class="dep-item dep-blocant"><span class="dep-icon">🔴</span> Cahier des charges produit — non démarré</div>
+        <div class="dep-item dep-blocant"><span class="dep-icon">🔴</span> Brief mixologue — bloqué par formule</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> Variante B-v2 ratio 2:3 — en exploration</div>
+      </div>
+
+      <div class="dep-card">
+        <div class="dep-title">🏛️ Séquence Institutionnelle</div>
+        <div class="dep-item dep-ok"><span class="dep-icon">✅</span> CVC Cognac — EFFECTUÉ (30/03)</div>
+        <div class="dep-item dep-ok"><span class="dep-icon">✅</span> Contact CCI Bouchery — EFFECTUÉ (31/03)</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> RDV CCI — en attente retour (3-7 jours)</div>
+        <div class="dep-item dep-blocant"><span class="dep-icon">🔴</span> Immatriculation Lézéka — après RDV CCI</div>
+        <div class="dep-item dep-blocant"><span class="dep-icon">🔴</span> SOPRANO — bloqué : SIRET + formule + échantillon</div>
+        <div class="dep-item dep-blocant"><span class="dep-icon">🔴</span> PAE Poitiers — bloqué : SOPRANO + produit physique</div>
+      </div>
+
+      <div class="dep-card">
+        <div class="dep-title">📦 Module 06 — Matières Sèches</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> Devis bouteille verre — non lancé</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> Saverglass — contacter (50cl + 66cl, MOQ 3K)</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> Berlin Packaging — contacter</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> Verrerie du Sud — contacter</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> Co-packing ROY — confirmer 0,55€ <10k btl</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> Capsule rouge — spécifications à valider</div>
+      </div>
+
+      <div class="dep-card">
+        <div class="dep-title">💰 Module 05 — Modèle Économique</div>
+        <div class="dep-item dep-blocant"><span class="dep-icon">🔴</span> 0% avancement — aucun livrable</div>
+        <div class="dep-item dep-blocant"><span class="dep-icon">🔴</span> PRU final — bloqué par devis fournisseurs</div>
+        <div class="dep-item dep-blocant"><span class="dep-icon">🔴</span> Business plan — bloqué par PRU + formule</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> Cost Breakdown v7 disponible comme base</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> Seuils calculés — à affiner avec dévis réels</div>
+      </div>
+
+      <div class="dep-card">
+        <div class="dep-title">🎨 Module 04 — Identité & Marque</div>
+        <div class="dep-item dep-blocant"><span class="dep-icon">🔴</span> 0% avancement</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> Naming "La Lettre" — risque BNIC non résolu</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> Session dédiée naming post-CCI à planifier</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> Identité visuelle — non démarrée</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> Packaging design — dépend naming + formule</div>
+      </div>
+
+      <div class="dep-card">
+        <div class="dep-title">🚀 Drive & Sync</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> 03_MAIL_CCI_BOUCHERY_v2.docx — push EN_ATTENTE</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> Étude BEIA v1 (07_0_etude_comparative) — EN_ATTENTE</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> S3 Produit Économique (beia_s3) — EN_ATTENTE</div>
+        <div class="dep-item dep-pending"><span class="dep-icon">⏳</span> Cadrage S5 (beia_cadrage_s5) — EN_ATTENTE</div>
+        <div class="dep-item dep-ok"><span class="dep-icon">✅</span> 24 livrables déjà sur Drive</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB 5 — HISTORIQUE & DRIVE -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-5">
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;margin-top:8px;">
+      <div style="font-size:12px;color:#6b7280;">28 livrables VALIDE · 24 avec lien Drive · 4 EN_ATTENTE push</div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="filterDrive('all')" id="btn-all" style="background:#374151;color:#e2e8f0;border:none;padding:5px 12px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;">Tous</button>
+        <button onclick="filterDrive('drive')" id="btn-drive" style="background:#1f2937;color:#9ca3af;border:1px solid #2d3748;padding:5px 12px;border-radius:6px;font-size:11px;cursor:pointer;">Avec Drive</button>
+        <button onclick="filterDrive('pending')" id="btn-pending" style="background:#1f2937;color:#9ca3af;border:1px solid #2d3748;padding:5px 12px;border-radius:6px;font-size:11px;cursor:pointer;">EN_ATTENTE</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="drive-table" id="drive-table">
+        <thead>
+          <tr><th>Module</th><th>Livrable</th><th>Version</th><th>Date</th><th>Drive</th></tr>
+        </thead>
+        <tbody id="drive-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB 6 — RÉSEAU INSTITUTIONNEL -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-6">
+  <!-- Sous-onglets réseau -->
+  <div style="display:flex;gap:0;padding:0 32px;background:#161f30;border-bottom:1px solid #2d3748;">
+    <div class="subtab active" id="subtab-0" onclick="showSubTab(0)" style="padding:9px 16px;font-size:12px;font-weight:600;color:#c9a84c;cursor:pointer;border-bottom:2px solid #c9a84c;white-space:nowrap;">🃏 Fiches acteurs</div>
+    <div class="subtab" id="subtab-1" onclick="showSubTab(1)" style="padding:9px 16px;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;">🗺️ Carte des relations</div>
+  </div>
+
+  <!-- Sous-onglet 0 — Fiches acteurs -->
+  <div id="subtab-content-0">
+    <div class="container">
+      <div style="margin-top:16px;margin-bottom:20px;background:#0f1a2e;border:1px solid #1e3a5f50;border-radius:10px;padding:14px 18px;font-size:12px;color:#93c5fd;">
+        🤝 <strong>Règle active :</strong> Toutes les communications externes utilisent <strong>"eaux-de-vie de Cognac"</strong> (pas "Grande Champagne") tant que le risque BNIC n'est pas résolu.
+      </div>
+      <div class="reseau-grid" id="reseau-container"></div>
+    </div>
+  </div>
+
+  <!-- Sous-onglet 1 — Carte des relations -->
+  <div id="subtab-content-1" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 32px;background:#131f2b;border-bottom:1px solid #1e3048;">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+        <span style="font-size:11px;color:#7abadc;font-weight:700;margin-right:4px;">INSTITUTIONS</span>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#bbb;"><div style="width:13px;height:13px;border-radius:50%;background:#1a6fa8;flex-shrink:0;"></div> CCI Charente</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#bbb;"><div style="width:13px;height:13px;border-radius:50%;background:#8e2020;flex-shrink:0;"></div> BNIC</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#bbb;"><div style="width:13px;height:13px;border-radius:50%;background:#1a7a4a;flex-shrink:0;"></div> Spirits Valley</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#bbb;"><div style="width:13px;height:13px;border-radius:50%;background:#7a4a1a;flex-shrink:0;"></div> Région NA</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#bbb;"><div style="width:13px;height:13px;border-radius:50%;background:#5a2a7a;flex-shrink:0;"></div> Consortium CGC</div>
+        <span style="color:#2e4a5e;margin:0 4px;">|</span>
+        <span style="font-size:11px;color:#7abadc;font-weight:700;margin-right:4px;">LIENS</span>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#bbb;"><div style="width:26px;height:3px;background:#e74c3c;border-radius:2px;flex-shrink:0;"></div> Cumul de mandats</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#bbb;"><div style="width:26px;height:3px;background:#e67e22;border-radius:2px;flex-shrink:0;"></div> Lien institutionnel fort</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#bbb;"><div style="width:26px;height:3px;background:#3498db;opacity:0.6;border-radius:2px;flex-shrink:0;"></div> Lien indirect</div>
+      </div>
+    </div>
+
+    <div style="display:flex;height:calc(100vh - 200px);">
+      <!-- SVG Map -->
+      <div style="flex:1;position:relative;overflow:hidden;background:#0f1923;">
+        <svg id="map-embed" viewBox="0 0 900 620" style="width:100%;height:100%;">
+          <defs>
+            <marker id="arrow-red2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e74c3c"/></marker>
+            <marker id="arrow-orange2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e67e22"/></marker>
+            <marker id="arrow-blue2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#3498db"/></marker>
+            <filter id="glow-red2"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="glow-blue2"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+
+          <!-- EDGES institutions -->
+          <line x1="210" y1="180" x2="480" y2="115" stroke="#e67e22" stroke-width="2.5" opacity="0.6" marker-end="url(#arrow-orange2)"/>
+          <text font-family="Arial" font-size="10" fill="#7abadc" x="320" y="128" text-anchor="middle" transform="rotate(-8,320,128)" pointer-events="none">Consortium CGC</text>
+          <line x1="210" y1="180" x2="590" y2="195" stroke="#e67e22" stroke-width="2" opacity="0.5" marker-end="url(#arrow-orange2)"/>
+          <text font-family="Arial" font-size="10" fill="#7abadc" x="390" y="178" text-anchor="middle" pointer-events="none">Consortium CGC</text>
+          <line x1="480" y1="135" x2="590" y2="195" stroke="#e74c3c" stroke-width="3" opacity="0.8" marker-end="url(#arrow-red2)" filter="url(#glow-red2)"/>
+          <text font-family="Arial" font-size="10" fill="#e74c3c" font-weight="700" x="548" y="155" text-anchor="middle" pointer-events="none">CUMUL MANDATS</text>
+          <line x1="150" y1="370" x2="460" y2="150" stroke="#3498db" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5" marker-end="url(#arrow-blue2)"/>
+          <text font-family="Arial" font-size="10" fill="#3498db" opacity="0.8" x="270" y="275" text-anchor="middle" transform="rotate(-55,270,275)" pointer-events="none">VitiREV</text>
+          <line x1="175" y1="360" x2="575" y2="215" stroke="#3498db" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.4" marker-end="url(#arrow-blue2)"/>
+          <line x1="700" y1="390" x2="650" y2="480" stroke="#e67e22" stroke-width="2" opacity="0.6" marker-end="url(#arrow-orange2)"/>
+          <text font-family="Arial" font-size="10" fill="#7abadc" x="685" y="425" text-anchor="middle" transform="rotate(-70,685,425)" pointer-events="none">Fondateur</text>
+          <line x1="620" y1="490" x2="220" y2="195" stroke="#5a2a7a" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.4"/>
+          <line x1="630" y1="475" x2="490" y2="145" stroke="#5a2a7a" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.4"/>
+          <line x1="635" y1="470" x2="610" y2="225" stroke="#5a2a7a" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.4"/>
+
+          <!-- PERSON → INSTITUTION LINKS -->
+          <line x1="390" y1="295" x2="475" y2="148" stroke="#e74c3c" stroke-width="3" opacity="0.9" marker-end="url(#arrow-red2)"/>
+          <text font-family="Arial" font-size="10" fill="#e74c3c" font-weight="700" x="450" y="218" text-anchor="middle" pointer-events="none">Président</text>
+          <line x1="410" y1="285" x2="578" y2="212" stroke="#e74c3c" stroke-width="2" opacity="0.7" marker-end="url(#arrow-red2)"/>
+          <text font-family="Arial" font-size="10" fill="#e74c3c" x="510" y="238" text-anchor="middle" pointer-events="none">Vice-Président</text>
+          <line x1="370" y1="310" x2="240" y2="390" stroke="#3498db" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.5" marker-end="url(#arrow-blue2)"/>
+          <text font-family="Arial" font-size="10" fill="#3498db" x="285" y="340" text-anchor="middle" transform="rotate(-35,285,340)" pointer-events="none">Dir. Relations Viticoles</text>
+          <line x1="620" y1="300" x2="610" y2="230" stroke="#e67e22" stroke-width="2.5" opacity="0.8" marker-end="url(#arrow-orange2)"/>
+          <text font-family="Arial" font-size="10" fill="#e67e22" x="638" y="263" text-anchor="start" pointer-events="none">Président</text>
+          <line x1="600" y1="295" x2="510" y2="150" stroke="#e74c3c" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.5" marker-end="url(#arrow-red2)"/>
+          <text font-family="Arial" font-size="10" fill="#e74c3c" opacity="0.8" x="570" y="210" text-anchor="middle" pointer-events="none">Ex-Président</text>
+          <line x1="185" y1="455" x2="168" y2="385" stroke="#e67e22" stroke-width="2.5" opacity="0.8" marker-end="url(#arrow-orange2)"/>
+          <text font-family="Arial" font-size="10" fill="#7abadc" x="152" y="420" text-anchor="end" pointer-events="none">Cll. Déléguée</text>
+          <line x1="215" y1="450" x2="575" y2="220" stroke="#3498db" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.5" marker-end="url(#arrow-blue2)"/>
+          <text font-family="Arial" font-size="10" fill="#3498db" x="380" y="310" text-anchor="middle" transform="rotate(-22,380,310)" pointer-events="none">Vice-Présidente</text>
+          <line x1="760" y1="305" x2="645" y2="228" stroke="#e67e22" stroke-width="2.5" opacity="0.8" marker-end="url(#arrow-orange2)"/>
+          <text font-family="Arial" font-size="10" fill="#e67e22" x="715" y="258" text-anchor="middle" pointer-events="none">Directeur</text>
+          <line x1="740" y1="320" x2="228" y2="195" stroke="#3498db" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.45" marker-end="url(#arrow-blue2)"/>
+          <text font-family="Arial" font-size="10" fill="#3498db" x="475" y="240" text-anchor="middle" transform="rotate(-8,475,240)" pointer-events="none">Ancien directeur antenne CCI Cognac</text>
+          <line x1="110" y1="285" x2="178" y2="200" stroke="#e67e22" stroke-width="2" opacity="0.7" marker-end="url(#arrow-orange2)"/>
+          <text font-family="Arial" font-size="10" fill="#7abadc" x="120" y="235" text-anchor="middle" transform="rotate(-55,120,235)" pointer-events="none">Resp. Formalités</text>
+          <line x1="770" y1="455" x2="650" y2="228" stroke="#3498db" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.5" marker-end="url(#arrow-blue2)"/>
+          <text font-family="Arial" font-size="10" fill="#3498db" x="730" y="330" text-anchor="middle" transform="rotate(-68,730,330)" pointer-events="none">Vice-Présidente</text>
+          <line x1="620" y1="540" x2="700" y2="418" stroke="#e67e22" stroke-width="1.5" opacity="0.6" marker-end="url(#arrow-orange2)"/>
+          <line x1="634" y1="540" x2="643" y2="530" stroke="#9b59b6" stroke-width="2" opacity="0.7" marker-end="url(#arrow-blue2)"/>
+
+          <!-- INSTITUTIONS -->
+          <g style="cursor:pointer;" onclick="showCartoInfo('cci')">
+            <circle cx="200" cy="185" r="42" fill="#1a6fa8" opacity="0.9" stroke="#3498db" stroke-width="2"/>
+            <text font-family="Arial" font-size="12" font-weight="700" x="200" y="181" text-anchor="middle" fill="#fff" dominant-baseline="middle" pointer-events="none">CCI</text>
+            <text font-family="Arial" font-size="10" x="200" y="195" text-anchor="middle" fill="#cce5ff" pointer-events="none">Charente</text>
+          </g>
+          <g style="cursor:pointer;" onclick="showCartoInfo('bnic')">
+            <circle cx="490" cy="125" r="48" fill="#8e2020" opacity="0.95" stroke="#e74c3c" stroke-width="2.5" filter="url(#glow-red2)"/>
+            <text font-family="Arial" font-size="14" font-weight="800" x="490" y="121" text-anchor="middle" fill="#fff" dominant-baseline="middle" pointer-events="none">BNIC</text>
+            <text font-family="Arial" font-size="10" x="490" y="137" text-anchor="middle" fill="#ffcccc" pointer-events="none">Interprofession Cognac</text>
+          </g>
+          <g style="cursor:pointer;" onclick="showCartoInfo('sv')">
+            <circle cx="612" cy="205" r="44" fill="#1a7a4a" opacity="0.9" stroke="#27ae60" stroke-width="2"/>
+            <text font-family="Arial" font-size="11" font-weight="700" x="612" y="200" text-anchor="middle" fill="#fff" pointer-events="none">Spirits</text>
+            <text font-family="Arial" font-size="11" font-weight="700" x="612" y="214" text-anchor="middle" fill="#ccffdd" pointer-events="none">Valley</text>
+          </g>
+          <g style="cursor:pointer;" onclick="showCartoInfo('region')">
+            <circle cx="162" cy="365" r="36" fill="#7a4a1a" opacity="0.9" stroke="#e67e22" stroke-width="2"/>
+            <text font-family="Arial" font-size="10" font-weight="700" x="162" y="360" text-anchor="middle" fill="#fff" pointer-events="none">Région</text>
+            <text font-family="Arial" font-size="9" x="162" y="373" text-anchor="middle" fill="#ffe8cc" pointer-events="none">Nouvelle-Aq.</text>
+          </g>
+          <g style="cursor:pointer;" onclick="showCartoInfo('grandcognac')">
+            <circle cx="710" cy="385" r="34" fill="#4a6a1a" opacity="0.9" stroke="#8bc34a" stroke-width="1.5"/>
+            <text font-family="Arial" font-size="10" font-weight="700" x="710" y="380" text-anchor="middle" fill="#fff" pointer-events="none">Grand</text>
+            <text font-family="Arial" font-size="10" font-weight="700" x="710" y="393" text-anchor="middle" fill="#e8ffcc" pointer-events="none">Cognac</text>
+          </g>
+          <g style="cursor:pointer;" onclick="showCartoInfo('cgc')">
+            <circle cx="645" cy="490" r="40" fill="#5a2a7a" opacity="0.85" stroke="#9b59b6" stroke-width="2"/>
+            <text font-family="Arial" font-size="9" font-weight="700" x="645" y="483" text-anchor="middle" fill="#fff" pointer-events="none">Convergence</text>
+            <text font-family="Arial" font-size="9" font-weight="700" x="645" y="496" text-anchor="middle" fill="#e8ccff" pointer-events="none">Grand Cognac</text>
+            <text font-family="Arial" font-size="8" x="645" y="507" text-anchor="middle" fill="#e8ccff" pointer-events="none">(Consortium 2024)</text>
+          </g>
+          <g style="cursor:pointer;" onclick="showCartoInfo('hennessy')">
+            <circle cx="230" cy="405" r="30" fill="#2a3a4a" opacity="0.9" stroke="#7abadc" stroke-width="1.5" stroke-dasharray="4,2"/>
+            <text font-family="Arial" font-size="10" font-weight="700" x="230" y="401" text-anchor="middle" fill="#ccc" pointer-events="none">Maison</text>
+            <text font-family="Arial" font-size="10" x="230" y="413" text-anchor="middle" fill="#7abadc" pointer-events="none">Hennessy</text>
+          </g>
+
+          <!-- PERSONS -->
+          <g style="cursor:pointer;" onclick="showCartoInfo('morillon')">
+            <rect x="330" y="270" width="120" height="52" rx="8" fill="#3d1010" stroke="#e74c3c" stroke-width="2.5" filter="url(#glow-red2)"/>
+            <text font-family="Arial" font-size="12" font-weight="800" x="390" y="291" text-anchor="middle" fill="#fff" pointer-events="none">F. MORILLON</text>
+            <text font-family="Arial" font-size="9" font-weight="700" x="390" y="307" text-anchor="middle" fill="#e74c3c" pointer-events="none">⚠ CUMUL : BNIC + SV + Hennessy</text>
+          </g>
+          <g style="cursor:pointer;" onclick="showCartoInfo('robicquet')">
+            <rect x="560" y="278" width="120" height="48" rx="8" fill="#0d2a1a" stroke="#27ae60" stroke-width="1.5"/>
+            <text font-family="Arial" font-size="11" font-weight="700" x="620" y="298" text-anchor="middle" fill="#fff" pointer-events="none">J-S. ROBICQUET</text>
+            <text font-family="Arial" font-size="9" x="620" y="313" text-anchor="middle" fill="#27ae60" pointer-events="none">Président SV · Ex-BNIC</text>
+          </g>
+          <g style="cursor:pointer;" onclick="showCartoInfo('heraud')">
+            <rect x="130" y="432" width="115" height="46" rx="8" fill="#2a1a0d" stroke="#e67e22" stroke-width="1.5"/>
+            <text font-family="Arial" font-size="11" font-weight="700" x="188" y="452" text-anchor="middle" fill="#fff" pointer-events="none">L. HÉRAUD</text>
+            <text font-family="Arial" font-size="9" x="188" y="467" text-anchor="middle" fill="#e67e22" pointer-events="none">VP SV · Région NA</text>
+          </g>
+          <g style="cursor:pointer;" onclick="showCartoInfo('blanchard')">
+            <rect x="710" y="285" width="120" height="48" rx="8" fill="#0d1a2a" stroke="#3498db" stroke-width="1.5"/>
+            <text font-family="Arial" font-size="11" font-weight="700" x="770" y="305" text-anchor="middle" fill="#fff" pointer-events="none">C. BLANCHARD</text>
+            <text font-family="Arial" font-size="9" x="770" y="320" text-anchor="middle" fill="#3498db" pointer-events="none">Dir. SV · Ex-CCI Cognac</text>
+          </g>
+          <g style="cursor:pointer;" onclick="showCartoInfo('jougier')">
+            <rect x="55" y="260" width="115" height="48" rx="8" fill="#0a1a0a" stroke="#7abadc" stroke-width="1.5"/>
+            <text font-family="Arial" font-size="11" font-weight="700" x="113" y="280" text-anchor="middle" fill="#fff" pointer-events="none">M. JOUGIER</text>
+            <text font-family="Arial" font-size="9" x="113" y="295" text-anchor="middle" fill="#7abadc" pointer-events="none">Resp. Formalités CCI</text>
+          </g>
+          <g style="cursor:pointer;" onclick="showCartoInfo('lagarde')">
+            <rect x="715" y="435" width="115" height="48" rx="8" fill="#1a1a2a" stroke="#9b59b6" stroke-width="1.5"/>
+            <text font-family="Arial" font-size="11" font-weight="700" x="773" y="455" text-anchor="middle" fill="#fff" pointer-events="none">K. LAGARDE</text>
+            <text font-family="Arial" font-size="9" x="773" y="470" text-anchor="middle" fill="#9b59b6" pointer-events="none">VP SV · Maison Linéa</text>
+          </g>
+          <g style="cursor:pointer;" onclick="showCartoInfo('sourisseau')">
+            <rect x="560" y="540" width="120" height="46" rx="8" fill="#1a0d2a" stroke="#9b59b6" stroke-width="1.5"/>
+            <text font-family="Arial" font-size="11" font-weight="700" x="620" y="558" text-anchor="middle" fill="#fff" pointer-events="none">J. SOURISSEAU</text>
+            <text font-family="Arial" font-size="9" x="620" y="573" text-anchor="middle" fill="#9b59b6" pointer-events="none">Pdt CGC · 1er Pdt Consortium</text>
+          </g>
+
+          <text id="hint-embed" x="450" y="595" text-anchor="middle" fill="#3a5a7a" font-size="11" font-family="Arial" pointer-events="none">Cliquez sur un nœud pour voir le détail →</text>
+        </svg>
+      </div>
+
+      <!-- Sidebar carte -->
+      <div style="width:300px;background:#131f2b;border-left:1px solid #1e3048;padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
+        <div style="font-size:11px;font-weight:700;color:#7abadc;text-transform:uppercase;letter-spacing:0.06em;">Profils & Relations</div>
+        <div style="background:#2a1a1a;border:1px solid #c0392b44;border-radius:8px;padding:12px;font-size:11.5px;color:#aaa;line-height:1.6;">
+          <strong style="color:#e74c3c;">⚠ Point critique</strong><br>
+          Florent Morillon cumule <strong>Président BNIC</strong> + <strong>Vice-Président Spirits Valley</strong> + Dir. Hennessy. Approcher Spirits Valley = atteindre indirectement le BNIC.
+        </div>
+        <div style="background:#1a2a1a;border:1px solid #27ae6044;border-radius:8px;padding:12px;font-size:11.5px;color:#aaa;line-height:1.6;">
+          <strong style="color:#2ecc71;">Consortium CGC</strong> (juil. 2024)<br>
+          CCI · BNIC · Spirits Valley · Grand Cognac — même table de gouvernance. Ce que tu dis à la CCI peut circuler.
+        </div>
+        <div id="carto-detail-panel">
+          <div style="background:#0f1923;border:1px solid #1e3048;border-radius:8px;padding:14px;">
+            <div style="font-weight:700;color:#fff;font-size:13px;margin-bottom:4px;">Sélectionnez un nœud</div>
+            <div style="font-size:11px;color:#999;line-height:1.5;">Cliquez sur une institution ou une personne pour afficher le détail.</div>
+          </div>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:#7abadc;text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;">Légende Risque</div>
+        <div style="font-size:11px;color:#aaa;line-height:2;">
+          <span style="display:inline-block;background:#c0392b22;color:#e74c3c;border:1px solid #c0392b55;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;">CRITIQUE</span> Interlocuteur BNIC direct<br>
+          <span style="display:inline-block;background:#e67e2222;color:#e67e22;border:1px solid #e67e2255;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;">SENSIBLE</span> Lien institutionnel fort<br>
+          <span style="display:inline-block;background:#27ae6022;color:#2ecc71;border:1px solid #27ae6055;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;">NEUTRE</span> Lien indirect
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── RENDU DES ALERTES ──
+function renderAlertes() {
+  const container = document.getElementById('alertes-container');
+  const critiqueCount = TRACKING_DATA.alertes.filter(a => a.niveau === 'CRITIQUE').length;
+  document.getElementById('badge-alertes').textContent = critiqueCount;
+  container.innerHTML = TRACKING_DATA.alertes.map(a => `
+    <div class="alert-card ${a.niveau.toLowerCase()}">
+      <span class="alert-badge badge-${a.niveau.toLowerCase()}">${a.niveau}</span>
+      <div>
+        <div class="alert-titre">${a.titre}</div>
+        <div class="alert-detail">${a.detail}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── RENDU DES MODULES ──
+function renderModules() {
+  const container = document.getElementById('modules-container');
+  const modNames = {
+    "00_PILOTAGE": "00 — Pilotage",
+    "01_GOUVERNANCE_ET_CAPITAL": "01 — Gouvernance & Capital",
+    "02_JURIDIQUE_ET_CONFORMITE": "02 — Juridique & Conformité",
+    "03_PRODUIT_ET_FORMULATION": "03 — Produit & Formulation",
+    "04_IDENTITE_ET_MARQUE": "04 — Identité & Marque",
+    "05_MODELE_ECONOMIQUE": "05 — Modèle Économique",
+    "06_INDUSTRIEL_ET_SUPPLY_CHAIN": "06 — Industriel & Supply Chain",
+    "07_MARCHE_ET_DISTRIBUTION": "07 — Marché & Distribution",
+    "08_VALIDATION_TERRAIN": "08 — Validation Terrain",
+    "09_EQUIPE_ET_PARTENAIRES": "09 — Équipe & Partenaires",
+    "10_LANCEMENT": "10 — Lancement"
+  };
+  const mods = TRACKING_DATA.avancement_par_module;
+  container.innerHTML = Object.entries(mods).filter(([k]) => !k.startsWith('07.0')).map(([key, val]) => {
+    const pct = val.pct;
+    let fillClass = 'fill-empty';
+    let colorClass = 'gray';
+    if (pct === 100) { fillClass = 'fill-green'; colorClass = 'green'; }
+    else if (pct >= 60) { fillClass = 'fill-gold'; colorClass = 'gold'; }
+    else if (pct >= 20) { fillClass = 'fill-blue'; colorClass = 'blue'; }
+    else if (pct > 0) { fillClass = 'fill-gray'; colorClass = 'gray'; }
+    return `
+      <div class="module-row">
+        <div class="module-header">
+          <div class="module-name">${modNames[key] || key}</div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="module-stats">${val.valide} / ${val.total} livrables</div>
+            <div class="module-pct" style="color:${pct===100?'#10b981':pct>=60?'#c9a84c':pct>0?'#3b82f6':'#4b5563'};">${pct}%</div>
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill ${fillClass}" style="width:${pct}%"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── RENDU SÉQUENCE INSTITUTIONNELLE ──
+function renderSequence() {
+  const container = document.getElementById('sequence-container');
+  const total = TRACKING_DATA.sequence.length;
+  container.innerHTML = TRACKING_DATA.sequence.map((s, i) => {
+    const dotClass = s.statut === 'FAIT' ? 'fait' : s.statut === 'EN_ATTENTE' ? 'en_attente' : s.statut === 'OPTIONNEL' ? 'optionnel' : 'a_faire';
+    const tagClass = s.statut === 'FAIT' ? 'stag-fait' : s.statut === 'EN_ATTENTE' ? 'stag-attente' : s.statut === 'OPTIONNEL' ? 'stag-opt' : 'stag-todo';
+    const tagLabel = s.statut === 'FAIT' ? '✓ FAIT' : s.statut === 'EN_ATTENTE' ? '⏳ EN ATTENTE' : s.statut === 'OPTIONNEL' ? '◇ OPTIONNEL' : 'À FAIRE';
+    const connClass = s.statut === 'FAIT' ? 'conn-fait' : s.statut === 'EN_ATTENTE' ? 'conn-attente' : 'conn-todo';
+    const isLast = i === total - 1;
+    return `
+      <div class="seq-item">
+        <div class="seq-left">
+          <div class="seq-dot ${dotClass}">${s.etape}</div>
+          ${!isLast ? `<div class="seq-connector ${connClass}"></div>` : ''}
+        </div>
+        <div class="seq-content">
+          <div class="seq-acteur">${s.acteur}</div>
+          <div class="seq-detail">${s.detail}</div>
+          <span class="seq-tag ${tagClass}">${tagLabel}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── RENDU DRIVE TABLE ──
+const modBadge = {
+  "00_PILOTAGE": "mod-00",
+  "01_GOUVERNANCE_ET_CAPITAL": "mod-01",
+  "02_JURIDIQUE_ET_CONFORMITE": "mod-02",
+  "03_MARCHE_ET_POSITIONNEMENT": "mod-03",
+  "03_PRODUIT_ET_FORMULATION": "mod-03",
+  "06_INDUSTRIEL_ET_SUPPLY_CHAIN": "mod-06",
+  "07_MARCHE_ET_DISTRIBUTION": "mod-07",
+  "07.0_BEIA": "mod-07",
+  "09_EQUIPE_ET_PARTENAIRES": "mod-09"
+};
+const modShort = {
+  "00_PILOTAGE": "00", "01_GOUVERNANCE_ET_CAPITAL": "01", "02_JURIDIQUE_ET_CONFORMITE": "02",
+  "03_MARCHE_ET_POSITIONNEMENT": "03", "03_PRODUIT_ET_FORMULATION": "03",
+  "06_INDUSTRIEL_ET_SUPPLY_CHAIN": "06", "07_MARCHE_ET_DISTRIBUTION": "07",
+  "07.0_BEIA": "07B", "09_EQUIPE_ET_PARTENAIRES": "09"
+};
+let driveFilter = 'all';
+function filterDrive(f) {
+  driveFilter = f;
+  ['all','drive','pending'].forEach(id => {
+    const btn = document.getElementById('btn-'+id);
+    if(id===f) { btn.style.background='#374151'; btn.style.color='#e2e8f0'; btn.style.border='none'; }
+    else { btn.style.background='#1f2937'; btn.style.color='#9ca3af'; btn.style.border='1px solid #2d3748'; }
+  });
+  renderDriveTable();
+}
+function renderDriveTable() {
+  const tbody = document.getElementById('drive-tbody');
+  let items = [...TRACKING_DATA.valides];
+  if (driveFilter === 'drive') items = items.filter(v => v.drive);
+  if (driveFilter === 'pending') items = items.filter(v => v.push_drive === 'EN_ATTENTE');
+  items.sort((a,b) => new Date(b.date) - new Date(a.date));
+  tbody.innerHTML = items.map(v => {
+    const mc = modBadge[v.module] || 'mod-00';
+    const ms = modShort[v.module] || v.module.slice(0,2);
+    const driveCell = v.push_drive === 'EN_ATTENTE'
+      ? `<span class="badge-en-attente">⏳ EN_ATTENTE push</span>`
+      : v.drive
+        ? `<a href="${v.drive}" target="_blank" class="drive-link">→ Ouvrir</a>`
+        : `<span style="color:#4b5563;font-size:11px;">—</span>`;
+    return `
+      <tr>
+        <td><span class="badge-module ${mc}">${ms}</span></td>
+        <td style="max-width:280px;font-size:12px;">${v.nom}</td>
+        <td style="font-size:11px;color:#6b7280;">${v.version || '—'}</td>
+        <td style="font-size:11px;color:#6b7280;white-space:nowrap;">${v.date || '—'}</td>
+        <td>${driveCell}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ── RENDU RÉSEAU INSTITUTIONNEL ──
+function renderReseau() {
+  const data = [
+    {
+      org: "CCI Charente", status: "ACTIF", statusClass: "rs-actif",
+      contact: "Patricia Bouchery (principale)",
+      note: "Mail dispatché 31/03. Retour attendu 3-7 jours. Équipe : Bournoville (structuration), Bardet (conformité), Jean-François (aides), Laffitte (export), Billard (admin).",
+      tags: ["Premier contact établi", "En attente RDV"]
+    },
+    {
+      org: "CVC Cognac (Douanes)", status: "ACTIF", statusClass: "rs-actif",
+      contact: "Effectué le 30/03/2026",
+      note: "Procédure SOPRANO confirmée. Classification NC 2208 90 à déposer. Nécessite SIRET Lézéka.",
+      tags: ["Appel effectué", "SOPRANO validé"]
+    },
+    {
+      org: "BNIC", status: "À PLANIFIER", statusClass: "rs-planif",
+      contact: "Via CCI Bouchery (à coordonner)",
+      note: "Risque naming 'La Lettre' à résoudre. Session dédiée post-retour CCI. Contact BNIC accessible via équipe Bouchery.",
+      tags: ["Risque naming", "Session post-CCI"]
+    },
+    {
+      org: "Jean Fort (Pineau)", status: "À PLANIFIER", statusClass: "rs-planif",
+      contact: "Fournisseur Pineau des Charentes",
+      note: "Appel à organiser : arbitrage formule TAV + ratio Cognac/Pineau. Déblocant n°1 de toute la chaîne de certification.",
+      tags: ["Déblocant SOPRANO", "Formule à trancher"]
+    },
+    {
+      org: "Lézéka", status: "À FAIRE", statusClass: "rs-todo",
+      contact: "Domiciliation & immatriculation",
+      note: "~294 EUR tout compris. SIRET définitif : 3-4 semaines. Kbis provisoire : 48h. Séquence : attendre retour CCI.",
+      tags: ["~294 EUR", "Kbis 48h possible"]
+    },
+    {
+      org: "SOPRANO (Douanes)", status: "À FAIRE", statusClass: "rs-todo",
+      contact: "Plateforme dépôt fiscal France",
+      note: "Dépôt impossible sans : SIRET Lézéka + formule arbitrée + échantillon physique. Priorité absolue après Lézéka + formule.",
+      tags: ["3 pré-requis", "Classement fiscal"]
+    },
+    {
+      org: "PAE Poitiers", status: "À FAIRE", statusClass: "rs-todo",
+      contact: "Pôle d'Action Économique",
+      note: "Demande échantillon physique. Dépend de SOPRANO + formule disponible. Phase finale certification.",
+      tags: ["Post-SOPRANO"]
+    },
+    {
+      org: "Fournisseurs verre", status: "À FAIRE", statusClass: "rs-todo",
+      contact: "Saverglass · Berlin Pkg · Verrerie du Sud",
+      note: "Session 'Matières sèches' à planifier. MOQ 3 000 btl. 50cl + 66cl. Capsule rouge à spécifier.",
+      tags: ["Session dédiée", "MOQ 3 000"]
+    },
+    {
+      org: "ROY (co-packing)", status: "À FAIRE", statusClass: "rs-todo",
+      contact: "Prestataire mise en bouteille",
+      note: "Tarif estimé : 0,55 EUR/btl hors grille <10k btl. À confirmer formellement lors session Matières sèches.",
+      tags: ["0,55€ estimé"]
+    },
+    {
+      org: "Importateur UK", status: "À FAIRE", statusClass: "rs-todo",
+      contact: "Agent UK — à identifier",
+      note: "Structure validée : Equity 12,5% / Commission 15%. Activation post-certification SOPRANO + PAE. Séquence finale.",
+      tags: ["Equity 12,5%", "Commission 15%"]
+    },
+    {
+      org: "Spirits Valley", status: "EN ATTENTE", statusClass: "rs-attente",
+      contact: "Accélérateur spiritueux",
+      note: "Optionnel — activation post-validation institutionnelle. Peut accélérer la mise en marché UK.",
+      tags: ["Optionnel", "Post-validation"]
+    },
+    {
+      org: "HMRC / Agents UK", status: "À FAIRE", statusClass: "rs-todo",
+      contact: "Fiscalité & distribution UK",
+      note: "BTI/RTC portée par l'importateur UK via EBTI européen. Phase finale projet — post toutes certifications FR.",
+      tags: ["Phase finale", "Via importateur"]
+    }
+  ];
+  const container = document.getElementById('reseau-container');
+  container.innerHTML = data.map(d => `
+    <div class="reseau-card">
+      <div class="reseau-header">
+        <div class="reseau-org">${d.org}</div>
+        <span class="reseau-status ${d.statusClass}">${d.status}</span>
+      </div>
+      <div class="reseau-contact" style="color:#c9a84c;font-size:11px;margin-bottom:6px;">📞 ${d.contact}</div>
+      <div class="reseau-note">${d.note}</div>
+      <div class="reseau-tags">${d.tags.map(t => `<span class="rtag">${t}</span>`).join('')}</div>
+    </div>
+  `).join('');
+}
+
+// ── SOUS-ONGLETS COST BREAKDOWN ──
+function showCBTab(index) {
+  [0,1,2].forEach(i => {
+    document.getElementById('cb-content-'+i).style.display = i === index ? 'block' : 'none';
+    const t = document.getElementById('cb-tab-'+i);
+    if (i === index) {
+      t.style.color = '#c9a84c';
+      t.style.borderColor = '#c9a84c';
+      t.style.background = '#2d1e0a';
+      t.querySelector('div').style.color = '#c9a84c';
+      t.querySelector('div').style.opacity = '0.8';
+    } else {
+      t.style.color = '#6b7280';
+      t.style.borderColor = '#2d3748';
+      t.style.background = '#111827';
+      t.querySelector('div').style.color = '#6b7280';
+      t.querySelector('div').style.opacity = '1';
+    }
+  });
+}
+
+// ── SOUS-ONGLETS RÉSEAU ──
+function showSubTab(index) {
+  document.getElementById('subtab-content-0').style.display = index === 0 ? 'block' : 'none';
+  document.getElementById('subtab-content-1').style.display = index === 1 ? 'block' : 'none';
+  document.getElementById('subtab-0').style.color = index === 0 ? '#c9a84c' : '#6b7280';
+  document.getElementById('subtab-0').style.borderBottomColor = index === 0 ? '#c9a84c' : 'transparent';
+  document.getElementById('subtab-1').style.color = index === 1 ? '#c9a84c' : '#6b7280';
+  document.getElementById('subtab-1').style.borderBottomColor = index === 1 ? '#c9a84c' : 'transparent';
+}
+
+// ── CARTE INSTITUTIONNELLE — PROFILS ──
+const cartoProfiles = {
+  cci: { name: "CCI Charente", role: "Chambre de Commerce et d'Industrie", risk: "low", orgs: [{l:"CCI",c:"#1a6fa8"},{l:"Consortium CGC",c:"#5a2a7a"}], note: "Co-fondatrice du Consortium CGC avec le BNIC. Contact principal : Patricia Bouchery. Référente initiale : Martine Jougier-Raynard (05 45 36 32 32). Équipe : Bournoville (structuration), Bardet (conformité), Jean-François (aides), Laffitte (export). Mail dispatché le 31/03." },
+  bnic: { name: "BNIC", role: "Bureau National Interprofessionnel du Cognac", risk: "max", orgs: [{l:"BNIC",c:"#8e2020"},{l:"Consortium CGC",c:"#5a2a7a"}], note: "Institution de contrôle de l'appellation Cognac. Président : Florent Morillon (2023-2026), aussi VP Spirits Valley. Délivre les certificats d'export. Interlocuteur INCONTOURNABLE pour valider l'étiquetage. À approcher après sécurisation réglementaire." },
+  sv: { name: "Spirits Valley", role: "Cluster territorial des spiritueux charentais", risk: "med", orgs: [{l:"Spirits Valley",c:"#1a7a4a"},{l:"Consortium CGC",c:"#5a2a7a"}], note: "CA : Robicquet (ex-BNIC), Morillon (BNIC actuel), Héraud (Région NA), Lagarde. Directeur : Calixte Blanchard (ex-CCI Cognac). Utile : annuaire adhérents pour prestataires. Risque : espace où Morillon siège — pas le lieu pour exposer le projet avant validation réglementaire." },
+  cgc: { name: "Consortium Convergence Grand Cognac", role: "Gouvernance territoriale commune (juil. 2024)", risk: "med", orgs: [{l:"CCI",c:"#1a6fa8"},{l:"BNIC",c:"#8e2020"},{l:"Spirits Valley",c:"#1a7a4a"},{l:"Grand Cognac",c:"#4a6a1a"}], note: "Signé le 1er juillet 2024. Fondateurs : Braud (CCI), Morillon (BNIC), Sourisseau (Grand Cognac), Robicquet (SV). 1er Président tournant : Sourisseau. CCI, BNIC, SV et collectivité partagent la même table — tout circule entre eux." },
+  region: { name: "Région Nouvelle-Aquitaine", role: "Collectivité régionale — Viticulture & Spiritueux", risk: "low", orgs: [{l:"Région NA",c:"#7a4a1a"},{l:"VitiREV",c:"#555"}], note: "Référente : Lydia Héraud. Pilote VitiREV (73M€, 10 ans) avec le BNIC. Source d'aides à l'innovation et subventions. Levier financier à activer une fois le projet structuré." },
+  grandcognac: { name: "Grand Cognac (Communauté Urbaine)", role: "Collectivité locale — développement économique", risk: "low", orgs: [{l:"Grand Cognac",c:"#4a6a1a"},{l:"Consortium CGC",c:"#5a2a7a"}], note: "Présidée par Jérôme Sourisseau, 1er président tournant du Consortium CGC. Moins impliqué directement sur le projet à court terme, mais partie prenante de l'écosystème institutionnel." },
+  hennessy: { name: "Maison Hennessy", role: "Maison de Cognac (LVMH) — 1er exportateur mondial", risk: "med", orgs: [{l:"Hennessy",c:"#2a3a4a"}], note: "Employeur de Florent Morillon. Son double rôle Hennessy + BNIC crée une concentration d'influence. Hennessy surveille naturellement tout usage de la mention Cognac." },
+  morillon: { name: "Florent Morillon", role: "Président BNIC · VP Spirits Valley · Dir. Relations Viticoles Hennessy", risk: "max", orgs: [{l:"BNIC",c:"#8e2020"},{l:"Spirits Valley",c:"#1a7a4a"},{l:"Hennessy",c:"#2a3a4a"}], note: "L'acteur le plus puissant de l'écosystème. Cumule présidence BNIC + VP Spirits Valley + Dir. Hennessy. Approcher SV ou la CCI, c'est potentiellement l'atteindre indirectement. À aborder directement au BNIC après sécurisation réglementaire." },
+  robicquet: { name: "Jean-Sébastien Robicquet", role: "Président Spirits Valley · CEO Maison Villevert · Ex-Président BNIC", risk: "med", orgs: [{l:"Spirits Valley",c:"#1a7a4a"}], note: "Fondateur de Maison Villevert et créateur de 'La Guilde du Cognac' — produit différencié à base de Cognac. Précédent intéressant : a navigué lui-même l'usage du mot Cognac dans un produit élaboré. Potentiellement allié utile en Phase 2." },
+  heraud: { name: "Lydia Héraud", role: "VP Spirits Valley · Conseillère Région NA (viticulture/spiritueux)", risk: "low", orgs: [{l:"Spirits Valley",c:"#1a7a4a"},{l:"Région NA",c:"#7a4a1a"}], note: "Levier financier clé. Déléguée régionale sur viticulture/spiritueux depuis 2016. Pilote VitiREV avec BNIC. Valeur : accès aux dispositifs d'aides régionales (BPI, fonds européens). À activer une fois le projet structuré et validé réglementairement." },
+  blanchard: { name: "Calixte Blanchard", role: "Directeur Spirits Valley · Ancien directeur antenne CCI Cognac", risk: "med", orgs: [{l:"Spirits Valley",c:"#1a7a4a"},{l:"CCI",c:"#1a6fa8"}], note: "Pont humain entre CCI et Spirits Valley. A dirigé l'antenne CCI de Cognac avant de prendre la tête de SV. Si le RDV CCI se passe bien, connexion naturelle — à activer après sécurisation réglementaire." },
+  jougier: { name: "Martine Jougier-Raynard", role: "Responsable pôle formalités — CCI Charente (depuis 1991)", risk: "low", orgs: [{l:"CCI",c:"#1a6fa8"}], note: "35 ans d'ancienneté à la CCI. Périmètre : immatriculation, formalités, guichet unique. Peut orienter vers le bon conseiller spécialisé. Ne pas lui demander d'avis réglementaire sur Cognac/BNIC." },
+  lagarde: { name: "Karine Lagarde", role: "VP Spirits Valley · Maison Linéa (packaging premium)", risk: "low", orgs: [{l:"Spirits Valley",c:"#1a7a4a"}], note: "Représentante packaging/services aux spiritueux dans le CA de SV. Expertise packaging verre premium — pertinente pour le flacon La Lettre. Profil opérationnel." },
+  sourisseau: { name: "Jérôme Sourisseau", role: "Président Grand Cognac · 1er Président tournant Consortium CGC", risk: "low", orgs: [{l:"Grand Cognac",c:"#4a6a1a"},{l:"Consortium CGC",c:"#5a2a7a"}], note: "Premier à présider le Consortium CGC (à tour de rôle). Rôle essentiellement territorial/économique — pas un acteur direct sur la réglementation des spiritueux." }
+};
+const riskColors = { max: {bg:"#c0392b22",color:"#e74c3c",border:"#c0392b55",label:"CRITIQUE"}, med: {bg:"#e67e2222",color:"#e67e22",border:"#e67e2255",label:"SENSIBLE"}, low: {bg:"#27ae6022",color:"#2ecc71",border:"#27ae6055",label:"NEUTRE"} };
+
+function showCartoInfo(id) {
+  const p = cartoProfiles[id];
+  if (!p) return;
+  const r = riskColors[p.risk];
+  const panel = document.getElementById('carto-detail-panel');
+  panel.innerHTML = `
+    <div style="background:#0f1923;border:1px solid #c0392b55;border-radius:8px;padding:14px;">
+      <div style="font-weight:700;color:#fff;font-size:13px;margin-bottom:3px;">${p.name}</div>
+      <div style="font-size:11px;color:#7abadc;margin-bottom:8px;">${p.role}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">
+        ${p.orgs.map(o => `<span style="background:${o.c}22;color:${o.c};border:1px solid ${o.c}55;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;">${o.l}</span>`).join('')}
+      </div>
+      <div style="font-size:11.5px;color:#aaa;line-height:1.55;">${p.note}</div>
+      <span style="display:inline-block;background:${r.bg};color:${r.color};border:1px solid ${r.border};font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-top:10px;">${r.label} pour votre projet</span>
+    </div>
+  `;
+  const hint = document.getElementById('hint-embed');
+  if (hint) hint.textContent = '';
+}
+
+// ── TAB NAVIGATION ──
+function showTab(index) {
+  document.querySelectorAll('.tab-content').forEach((t, i) => {
+    t.classList.toggle('active', i === index);
+  });
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', i === index);
+  });
+}
+
+// ── INIT ──
+renderAlertes();
+renderModules();
+renderSequence();
+renderDriveTable();
+renderReseau();
+</script>
+</body>
+</html>
