@@ -208,6 +208,55 @@ svg.ring { transform: rotate(-90deg); }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #111827; }
 ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+
+/* ── RESPONSIVE MOBILE ── */
+@media (max-width: 768px) {
+  .header { padding: 12px 16px; }
+  .header-title { font-size: 16px; }
+  .header-sub { font-size: 11px; }
+  .tabs { padding: 0 8px; }
+  .tab { padding: 9px 10px; font-size: 11px; }
+  .container { padding: 14px 12px; }
+
+  /* KPI : 2 colonnes sur mobile */
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .kpi-value { font-size: 20px; }
+
+  /* Toutes les grilles multi-colonnes → 1 colonne */
+  .alerts-grid, .modules-grid, .seq-grid, .reseau-grid,
+  .dep-grid, .vp-grid, .focus-actions, .two-col, .three-col { grid-template-columns: 1fr !important; }
+
+  /* Grilles inline : forcer 1 colonne sur tous les divs grid */
+  div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+
+  /* Exception : les sous-onglets CB restent en colonne unique mais lisibles */
+  .cb-rows { display: block; }
+
+  /* Cost Breakdown : sous-onglets empilés */
+  .cb-grid { grid-template-columns: 1fr !important; }
+
+  /* Réseau institutionnel : SVG scrollable */
+  .carto-container { overflow-x: auto; }
+  .carto-container svg { min-width: 600px; }
+
+  /* Drive table */
+  .drive-table { font-size: 11px; }
+  .drive-table td, .drive-table th { padding: 6px 8px; }
+
+  /* Section titles */
+  .section-title { font-size: 13px; }
+
+  /* CB card header : colonne */
+  .cb-header { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; }
+  .cb-price { font-size: 20px !important; }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .tab { padding: 8px 8px; font-size: 10.5px; }
+  .tab-badge { display: none; }
+  .container { padding: 10px 8px; }
+}
 </style>
 </head>
 <body>
