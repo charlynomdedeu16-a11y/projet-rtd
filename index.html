@@ -1375,6 +1375,24 @@ renderModules();
 renderSequence();
 renderDriveTable();
 renderReseau();
+
+// ── RESPONSIVE MOBILE : override des styles inline ──
+function applyMobileLayout() {
+  if (window.innerWidth > 768) return;
+  // Forcer toutes les grilles inline en 1 colonne
+  document.querySelectorAll('[style*="grid-template-columns"]').forEach(el => {
+    el.style.gridTemplateColumns = '1fr';
+  });
+  // KPI : 2 colonnes
+  const kpi = document.querySelector('.kpi-grid');
+  if (kpi) kpi.style.gridTemplateColumns = 'repeat(2,1fr)';
+}
+
+// Appliquer au chargement et après chaque render
+window.addEventListener('load', applyMobileLayout);
+window.addEventListener('resize', applyMobileLayout);
+// Ré-appliquer après les renders qui génèrent du HTML dynamique
+setTimeout(applyMobileLayout, 300);
 </script>
 </body>
 </html>
